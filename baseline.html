@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#2f5bd7"/>
+<title>Baseline Assessment — CWSN</title>
+<style>
+:root{
+  --bg:#f2f5fb; --card:#fff; --ink:#141b2b; --muted:#5a6577;
+  --line:#dbe2ee; --brand:#2f5bd7; --brand-soft:#e7eefd; --brand-ink:#1f3fa0;
+  --ok:#1a7f4b; --ok-soft:#e3f5ea; --warn:#b45309; --warn-soft:#fdf1e0;
+  --stop:#b91c1c; --stop-soft:#fdecec; --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  background:var(--bg);color:var(--ink);font-size:17px;line-height:1.5;
+  -webkit-text-size-adjust:100%;padding-bottom:60px}
+h1{font-size:1.6rem;line-height:1.2;margin:.2em 0 .4em}
+h2{font-size:1.12rem;margin:0 0 .5em}
+h3{font-size:1rem;margin:0 0 .35em}
+p{margin:.4em 0}
+ul{margin:.3em 0 .3em 1.1em;padding:0}
+li{margin:.25em 0}
+.muted{color:var(--muted);font-size:.92rem}
+.small{font-size:.85rem}
+.topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;
+  align-items:center;gap:10px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.topbar .dot{width:10px;height:10px;border-radius:50%;background:var(--brand);
+  display:inline-block;margin-right:8px}
+#savenote{font-size:.76rem;color:var(--muted);text-align:right}
+#savenote.ok{color:var(--ok)}
+#savenote.warn{color:var(--warn)}
+.stagebar{position:sticky;top:49px;z-index:19;display:flex;gap:6px;overflow-x:auto;
+  padding:8px 16px;background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}
+.stagebar::-webkit-scrollbar{display:none}
+.sbtn{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--muted);
+  border-radius:999px;padding:7px 13px;font-size:.85rem;font-weight:600;cursor:pointer;
+  min-height:38px;white-space:nowrap;font-family:inherit}
+.sbtn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.sbtn.done{background:var(--brand-soft);border-color:#c6d6fb;color:var(--brand-ink)}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin:0 0 14px;box-shadow:0 1px 2px rgba(20,27,43,.04)}
+.hero{padding:10px 0 4px}
+.kicker{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);font-weight:800}
+.lead{font-size:1.02rem;color:var(--muted)}
+.ticks{list-style:none;margin:0;padding:0}
+.ticks li{padding-left:26px;position:relative;margin:.45em 0}
+.ticks li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+.btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);
+  border-radius:12px;padding:12px 18px;font-size:1rem;font-weight:650;cursor:pointer;
+  min-height:50px;transition:.12s;font-family:inherit}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:#2549b5}
+.btn.ghost{background:transparent}
+.btn.small{min-height:40px;padding:8px 13px;font-size:.88rem;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.qcard{border-top:1px solid var(--line);padding:16px 0 6px}
+.qcard:first-of-type{border-top:0;padding-top:4px}
+.qid{font-size:.72rem;font-weight:800;color:var(--brand);letter-spacing:.06em}
+.qtext{font-weight:600;margin:2px 0 4px;font-size:1.02rem}
+.feeds{font-size:.8rem;color:var(--muted);margin-bottom:10px}
+.tag{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+  background:var(--brand-soft);color:var(--brand-ink);border-radius:6px;padding:2px 6px;
+  margin-left:6px;vertical-align:middle}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;
+  padding:10px 15px;font-size:.93rem;font-weight:600;cursor:pointer;min-height:44px;
+  font-family:inherit;transition:.12s}
+.chip:hover{border-color:#b9c7e6}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.inp{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;
+  font-size:1rem;font-family:inherit;color:var(--ink);background:#fff;min-height:50px}
+.inp:focus{outline:3px solid var(--brand-soft);border-color:var(--brand)}
+textarea.inp{min-height:88px;resize:vertical}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.mini{border:1px dashed var(--line);background:transparent;color:var(--muted);
+  border-radius:999px;padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer;
+  min-height:36px;font-family:inherit}
+.mini.on{background:var(--warn-soft);border-color:#ecc98f;color:var(--warn);border-style:solid}
+.blocked{padding:12px;border-radius:12px;background:#f7f8fb;border:1px dashed var(--line);color:var(--muted)}
+.speak{border:0;background:transparent;cursor:pointer;font-size:1.05rem;padding:4px 8px;
+  border-radius:8px;line-height:1}
+.speak:hover{background:var(--brand-soft)}
+.prog{height:8px;background:#e6ebf5;border-radius:99px;overflow:hidden;margin:8px 0}
+.prog>i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:.25s}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.item-row{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.item-row:last-child{border-bottom:0}
+.item-name{font-weight:650;flex:1 1 140px}
+.rate{display:flex;gap:6px;flex-wrap:wrap}
+.rate .chip{padding:8px 11px;font-size:.82rem;min-height:40px}
+.pickbig{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;
+  border-radius:14px;padding:16px;font-size:1.05rem;font-weight:650;cursor:pointer;
+  margin:0 0 10px;font-family:inherit;min-height:60px}
+.pickbig:hover{border-color:var(--brand);background:var(--brand-soft)}
+.rankrow{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.rankrow:last-child{border-bottom:0}
+.ranknum{width:32px;height:32px;flex:0 0 32px;border-radius:50%;background:var(--brand);
+  color:#fff;display:grid;place-items:center;font-weight:800;font-size:.9rem}
+.ranknum.gold{background:#c99a1a}
+.kv{display:grid;grid-template-columns:minmax(120px,38%) 1fr;gap:8px 14px;padding:6px 0;
+  border-bottom:1px solid var(--line);font-size:.94rem}
+.kv:last-child{border-bottom:0}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{margin:0;font-weight:600}
+.alert{border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.93rem}
+.alert.stop{background:var(--stop-soft);border:1px solid #f3c3c3;color:#7f1d1d}
+.alert.warn{background:var(--warn-soft);border:1px solid #f0d5aa;color:#7c4a08}
+.alert.ok{background:var(--ok-soft);border:1px solid #b9e3c9;color:#14532d}
+.stepbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.step{font-size:.8rem;font-weight:700;color:var(--muted);padding:5px 10px;border-radius:999px;background:#e9eef8}
+.step.on{background:var(--brand);color:#fff}
+.step.done{background:var(--brand-soft);color:var(--brand-ink)}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800;
+  letter-spacing:.12em;font-size:1.5rem;background:var(--brand-soft);color:var(--brand-ink);
+  border-radius:12px;padding:10px 16px;display:inline-block;margin:6px 0}
+@media print{
+  body{background:#fff;padding:0}
+  .noprint{display:none!important}
+  .wrap{max-width:100%;padding:0}
+  .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid}
+  .stagebar,.topbar{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar noprint">
+  <div><span class="dot"></span><strong>Baseline Assessment</strong></div>
+  <div id="savenote" class="small">Saved on this device</div>
+</header>
+<div class="stagebar noprint" id="stagebar"></div>
+<main id="app" class="wrap"></main>
+
+<script>
+"use strict";
+
+/* =========================================================
+   NETWORK CONFIG — EDIT THESE TWO LINES AFTER DEPLOYING
+   ========================================================= */
+const NET = {
+  endpoint: "https://script.google.com/macros/s/AKfycbzlLmYLDqYmzlQ2N4iFPl9k4XkMxKB0Mi4uWJn-IbqS_yFIhTka9eJZvgw5yMKEpH_r4A/exec",
+  token:    "oLW9hVBKa3UMxx",
+  appVersion: "1.0-test",
+  batchMs: 4000
+};
+
+/* =========================================================
+   CONSTANTS
+   ========================================================= */
+const KEY = "cwsn-baseline-v2";
+const LS_CHILD = "cwsn-child-code";
+const TEST_MODE = new URLSearchParams(location.search).get("mode") === "test";
+
+const SECS = [
+  {id:"A1", name:"Child & context"},
+  {id:"A2", name:"Communication"},
+  {id:"A3", name:"Vision, hearing, movement"},
+  {id:"A4", name:"Sensory screen"},
+  {id:"A5", name:"Attention & learning"},
+  {id:"A6", name:"Daily life & numbers"},
+  {id:"A7", name:"Motivators & fears"},
+  {id:"A8", name:"Behaviour & support"},
+  {id:"A9", name:"For teachers", teacherOnly:true}
+];
+
+const SCALE = ["Never","Sometimes","Often","Always"];
+const YNS   = ["Yes","Sometimes","No"];
+
+const QB = [
+{id:"A1.1",s:"A1",tier:1,type:"text",q:"What name does your child like to be called?",feeds:"Greeting and tutor voice",ph:"Their name or nickname"},
+{id:"A1.2",s:"A1",tier:1,type:"date",q:"What is your child’s date of birth?",feeds:"Age-appropriate themes and safety only — never used to place content"},
+{id:"A1.3",s:"A1",tier:1,type:"text",q:"Which languages are spoken at home, and which does your child understand best?",feeds:"Language of prompts",ph:"e.g. Hindi and Marathi at home; understands Hindi best"},
+{id:"A1.4",s:"A1",tier:2,t:true,type:"text",q:"Does your child go to school or a therapy centre? Which class or programme?",feeds:"Teacher link, alignment with school"},
+{id:"A1.5",s:"A1",tier:1,type:"text",q:"Who will usually sit with your child during tutor sessions, and at what time of day is your child at their best?",feeds:"Session scheduling",ph:"e.g. mother, after the morning snack"},
+{id:"A1.6",s:"A1",tier:2,type:"text",q:"Would you like to share a diagnosis or any reports? Sharing is optional and is never required to start.",feeds:"Context only — never used to set level"},
+{id:"A1.7",s:"A1",tier:1,type:"text",q:"What do you most want your child to be able to do in daily life with numbers, money or time in the next year?",feeds:"Caregiver goals, priority skills",ph:"e.g. pay at the shop, know when it is time to go home"},
+
+{id:"A2.1",s:"A2",tier:1,type:"multi",q:"How does your child usually tell you what they want?",feeds:"Input mode",opts:["Speech","Single words","Gestures","Pointing","Pictures or symbols","A device or app","Signs","Eye gaze","Sounds","Leading you by the hand","Behaviour"]},
+{id:"A2.2",s:"A2",tier:1,type:"set",q:"How many words, signs or pictures does your child use?",feeds:"Prompt length",opts:["None","1 to 10","10 to 50","50 or more","Sentences"]},
+{id:"A2.3",s:"A2",tier:2,t:true,type:"set",q:"Does your child understand simple instructions, for example “bring the cup”?",feeds:"Instruction complexity",opts:SCALE},
+{id:"A2.4",s:"A2",tier:2,type:"set",q:"Does your child respond to their name?",feeds:"Attention cues",opts:SCALE},
+{id:"A2.5",s:"A2",tier:2,type:"text",q:"Can your child show yes and no? How?",feeds:"Answer format",ph:"e.g. nods, says “no”, pushes the plate away"},
+{id:"A2.6",s:"A2",tier:1,type:"set",q:"Can your child choose between two things when shown, such as two snacks? Between three or four?",feeds:"Number of choices on screen",opts:["Not yet","Two things","Three or four","More than four"]},
+{id:"A2.7",s:"A2",tier:2,type:"multi",q:"Does your child recognise pictures, photos or symbols of real things? Which kinds?",feeds:"Image style",opts:["Photos","Drawings","Line symbols","None yet"]},
+{id:"A2.8",s:"A2",tier:3,t:true,type:"set",q:"Can your child follow a picture schedule or first–then card?",feeds:"Visual supports",opts:YNS},
+{id:"A2.9",s:"A2",tier:2,type:"set",q:"Does your child imitate actions or sounds?",feeds:"Whether model prompts will work",opts:SCALE},
+{id:"A2.10",s:"A2",tier:1,t:true,type:"set",q:"How long does your child need to answer after a question?",feeds:"Wait time",opts:["About 3 seconds","5 to 10 seconds","Longer","Not sure"]},
+{id:"A2.11",s:"A2",tier:2,type:"text",q:"Does your child use any communication device or app? Which one?",feeds:"Compatibility"},
+
+{id:"A3.1",s:"A3",tier:1,type:"set",q:"Does your child wear glasses, or have trouble seeing small or low-contrast things?",feeds:"Size and contrast",opts:YNS},
+{id:"A3.2",s:"A3",tier:1,type:"text",q:"Does your child have a hearing difference, or use hearing aids? Do they respond to voices on a screen?",feeds:"Audio and captions"},
+{id:"A3.3",s:"A3",tier:1,type:"set",q:"Can your child touch a tablet screen accurately with one finger?",feeds:"Button size",opts:YNS},
+{id:"A3.4",s:"A3",tier:2,type:"set",q:"Can your child pick up small items such as coins or counters? Large items?",feeds:"Physical materials, drag actions",opts:YNS},
+{id:"A3.5",s:"A3",tier:2,type:"multi",q:"Does your child use a mouse, switch, stylus or other aid?",feeds:"Input options",opts:["Mouse","Switch","Stylus","Keyboard","None","Other"]},
+{id:"A3.6",s:"A3",tier:2,type:"text",q:"Is there anything about positioning or fatigue we should know?",feeds:"Session length"},
+{id:"A3.7",s:"A3",tier:1,type:"text",q:"Is there anything your child must not eat, touch or be exposed to? (for example allergies, flashing lights)",feeds:"Hard safety constraints, food list",ph:"Write “none” if nothing applies"},
+
+{id:"A4.1",s:"A4",tier:2,type:"set",q:"How does your child react to loud or sudden sounds?",feeds:"Volume, sound effects",opts:["Gets upset","Notices but is fine","No reaction","Seeks them out"]},
+{id:"A4.2",s:"A4",tier:1,type:"set",q:"How often is your child upset by bright or flashing screens?",feeds:"Brightness, animation",opts:SCALE},
+{id:"A4.3",s:"A4",tier:2,type:"text",q:"Does your child like or avoid particular textures, touch or messy play?",feeds:"Physical materials"},
+{id:"A4.4",s:"A4",tier:3,type:"set",q:"Does your child seek movement — spinning, jumping or deep pressure?",feeds:"Movement breaks",opts:SCALE},
+{id:"A4.5",s:"A4",tier:1,t:true,type:"set",q:"Does your child get overwhelmed by busy screens or many items at once?",feeds:"Screen density",opts:SCALE},
+{id:"A4.6",s:"A4",tier:1,type:"text",q:"What helps your child calm down, and what makes things worse?",feeds:"Regulation plan"},
+
+{id:"A5.1a",s:"A5",tier:1,t:true,type:"set",q:"How long can your child sit and do an activity they enjoy?",feeds:"Block length",opts:["Under 2 minutes","2 to 5 minutes","5 to 10 minutes","Over 10 minutes"]},
+{id:"A5.1b",s:"A5",tier:2,t:true,type:"set",q:"And an activity they do not enjoy?",feeds:"Block length",opts:["Under 2 minutes","2 to 5 minutes","5 to 10 minutes","Over 10 minutes"]},
+{id:"A5.2",s:"A5",tier:2,type:"multi",q:"How does your child learn best?",feeds:"Method defaults",opts:["Watching","Doing with hands","Hearing","Pictures","Repetition","Music or rhythm"]},
+{id:"A5.3",s:"A5",tier:2,t:true,type:"set",q:"Does your child get frustrated when they make a mistake? How do they show it?",feeds:"Error handling",opts:SCALE},
+{id:"A5.4",s:"A5",tier:2,type:"set",q:"Does your child need to be told it is finished, or shown how much is left?",feeds:"Progress bar, end cues",opts:YNS},
+{id:"A5.5",s:"A5",tier:3,type:"set",q:"Does your child do better with the same routine each time, or with variety?",feeds:"Session structure",opts:["Same routine each time","Variety","It varies"]},
+{id:"A5.6",s:"A5",tier:2,type:"set",q:"Does your child accept help from an adult, or insist on doing it alone?",feeds:"Prompt style",opts:SCALE},
+
+{id:"A6.1",s:"A6",tier:2,t:true,type:"multi",q:"Which of these can your child do alone: eating, drinking, toileting, dressing?",feeds:"Daily-living context",opts:["Eating","Drinking","Toileting","Dressing"]},
+{id:"A6.2",s:"A6",tier:2,type:"set",q:"Does your child follow a daily routine, such as morning or bedtime, with pictures or words?",feeds:"T1 and T2 starting zone",opts:["Does it alone","With reminders","With help","Not yet","Has never had the chance"]},
+{id:"A6.3",s:"A6",tier:1,type:"set",q:"Can your child say or show how many — for example “give me two biscuits”? Up to what number?",feeds:"N5 and N6 starting zone",opts:["Not yet","Up to 2","Up to 3","Up to 5","Up to 10","More than 10"]},
+{id:"A6.4",s:"A6",tier:1,type:"text",q:"Does your child recognise any numbers? Which ones, and where (clock, phone, house, price)?",feeds:"N7 and N12 starting zone"},
+{id:"A6.5",s:"A6",tier:2,type:"set",q:"Does your child know that money is used to buy things? Have they ever handed over money in a shop?",feeds:"M1 and M4 starting zone",opts:["Not yet","Knows money buys things","Has handed over money","Both"]},
+{id:"A6.6",s:"A6",tier:1,type:"text",q:"Does your child recognise coins or notes? Which ones?",feeds:"M2 starting zone"},
+{id:"A6.7",s:"A6",tier:2,type:"set",q:"Does your child tell you when it is time for something, or look at a clock?",feeds:"T3 starting zone",opts:["Not yet","Knows routine times","Looks at a clock","Tells the time"]},
+{id:"A6.8",s:"A6",tier:2,type:"set",q:"Does your child share things equally, or know “more” and “less”?",feeds:"N9 and O7 starting zone",opts:["Not yet","Knows more and less","Shares equally","Both"]},
+{id:"A6.9",s:"A6",tier:3,type:"text",q:"Does your child use a phone or tablet independently? For what?",feeds:"Interface comfort, digital literacy"},
+{id:"A6.10",s:"A6",tier:2,type:"set",q:"Does your child go out, for example to a shop, with you? Do they take part?",feeds:"Real-world practice",opts:["Never","Goes but does not take part","Takes part with help","Takes part"]},
+{id:"A6.11",s:"A6",tier:3,t:true,type:"text",q:"How does your child get along with other children and adults?",feeds:"Social context"},
+{id:"A6.12",s:"A6",tier:2,type:"multi",q:"Does your child stay safe with: strangers, roads, hot things, their own name and address?",feeds:"Safety teaching priorities",opts:["Strangers","Roads","Hot things","Own name","Own address","None yet"]},
+
+{id:"A7.1",s:"A7",tier:1,type:"text",q:"What does your child ask for most? What would they do almost anything to get?",feeds:"Preference profile"},
+{id:"A7.2",s:"A7",tier:2,type:"text",q:"Which foods and drinks does your child love? Which do they refuse? Anything they cannot have?",feeds:"Preference profile"},
+{id:"A7.3",s:"A7",tier:1,type:"text",q:"Which animals, characters, cartoons, songs or stories does your child love?",feeds:"Themes for sessions",ph:"e.g. Peppa Pig, cricket, devotional songs"},
+{id:"A7.4",s:"A7",tier:2,type:"text",q:"Which toys, objects, colours or shapes are favourites?",feeds:"Preference profile"},
+{id:"A7.5",s:"A7",tier:1,type:"multi",q:"What activities does your child love?",feeds:"Preference profile",opts:["Music","Dancing","Water play","Drawing","Cars","Building","Outdoors","Videos","Games","Other"]},
+{id:"A7.6",s:"A7",tier:2,type:"multi",q:"What kind of praise works, and which do they dislike?",feeds:"Reinforcer menu",opts:["Clapping","High five","A cheer","A hug","A sticker","A favourite song","A short video","“Well done”","Time to play"]},
+{id:"A7.7",s:"A7",tier:3,type:"text",q:"Who is your child’s favourite person? Does a particular person’s voice or face calm them?",feeds:"Comfort and regulation"},
+{id:"A7.8",s:"A7",tier:2,type:"multi",q:"What is your child afraid of or upset by?",feeds:"Avoid list",opts:["Sounds","Animals","The dark","Crowds","Certain people","Being corrected","Being rushed","Failing","Other"]},
+{id:"A7.9",s:"A7",tier:1,type:"text",q:"What should the tutor never use, say or show?",feeds:"Hard constraint — never do",ph:"Write “none” if nothing applies"},
+{id:"A7.10",s:"A7",tier:3,type:"text",q:"Are there themes that matter to your family — festivals, religion or local foods — that you would like included or avoided?",feeds:"Cultural context"},
+
+{id:"A8.1",s:"A8",tier:1,type:"multi",q:"When your child does not want to do something, what do they do?",feeds:"Stop-signal rules",opts:["Turns away","Says no","Pushes things away","Cries","Shouts","Leaves","Hits or throws","Other"]},
+{id:"A8.2",s:"A8",tier:1,type:"text",q:"What are the early signs that your child is getting tired, bored or upset?",feeds:"Auto-pause cues"},
+{id:"A8.3",s:"A8",tier:1,type:"text",q:"What works to help your child recover?",feeds:"Break activities"},
+{id:"A8.4",s:"A8",tier:2,type:"text",q:"Does your child hurt themselves or others? If so, when?",feeds:"Safety plan — goes to human review"},
+{id:"A8.5",s:"A8",tier:2,type:"set",q:"How does your child feel about being watched, filmed or recorded?",feeds:"Recording settings",opts:SCALE},
+{id:"A8.6",s:"A8",tier:2,type:"set",q:"How much support will you realistically be able to give, and how often?",feeds:"Session frequency",opts:["Every day","A few times a week","Once a week","Less often"]},
+
+{id:"A9.1",s:"A9",tier:2,t:true,type:"text",q:"Which numeracy skills is the child working on in school, and at what prompt level?",feeds:"Alignment with school goals"},
+{id:"A9.2",s:"A9",tier:2,t:true,type:"multi",q:"Which teaching methods work best for this child?",feeds:"Method defaults",opts:["Time delay","Task analysis","Visual supports","Peer help","Other"]},
+{id:"A9.3",s:"A9",tier:3,t:true,type:"text",q:"Which reinforcers do you use, and how do they work with the child?",feeds:"Reinforcer menu"},
+{id:"A9.4",s:"A9",tier:3,t:true,type:"text",q:"What is the child’s IEP or goal plan, if there is one?",feeds:"Goal alignment"},
+{id:"A9.5",s:"A9",tier:3,t:true,type:"set",q:"How consistent is the child’s performance day to day?",feeds:"Reliability of the estimate",opts:SCALE},
+{id:"A9.6",s:"A9",tier:2,t:true,type:"text",q:"Is there anything in the caregiver’s answers you would correct from what you see at school?",feeds:"Educator review"}
+];
+
+const PROBES = [
+ {id:"N5", dom:"Number", name:"“Give me two”", mat:"4 biscuits, counters or small snacks", say:"“Give me two.” Say it once — do not point.", watch:"Hands over exactly two. A whole handful = not yet emerging.", src:"A6.3"},
+ {id:"N6", dom:"Number", name:"Counting to five", mat:"5 counters or toys in a line", say:"“How many?” Let them count.", watch:"Touches each item once while saying a number.", src:"A6.3"},
+ {id:"N7", dom:"Number", name:"Matching numerals", mat:"Cards (or screen): 1, 2, 3, 5", say:"“Show me three.” Then “Show me five.”", watch:"Points to or picks the correct card.", src:"A6.4"},
+ {id:"N9", dom:"Number", name:"More and less", mat:"Two plates — 2 counters and 6 counters", say:"“Which plate has more?”", watch:"Picks the fuller plate without counting.", src:"A6.8"},
+ {id:"N12", dom:"Number", name:"Numbers in real places", mat:"Photos: phone keypad, clock, house number, price tag", say:"“Where do you see a number?”", watch:"Points to a numeral and shows interest.", src:"A6.4"},
+ {id:"M1", dom:"Money", name:"Money buys things", mat:"Play shop: 2 items and a few coins", say:"“Let’s buy this one.” Then wait.", watch:"Reaches for coins, or hands something over.", src:"A6.5"},
+ {id:"M2", dom:"Money", name:"Coin and note recognition", mat:"A few real coins and a note", say:"“Show me the ₹10.” Then “Which one is a coin?”", watch:"Sorts or points to the named item.", src:"A6.6"},
+ {id:"M4", dom:"Money", name:"Paying in a shop", mat:"Play shop, coins, an adult as shopkeeper", say:"“Give the money to the shopkeeper.”", watch:"Hands the money across and waits.", src:"A6.5"},
+ {id:"T1", dom:"Time", name:"Daily routine order", mat:"3 pictures: waking, eating, sleeping", say:"“What comes next?”", watch:"Arranges or points in order.", src:"A6.2"},
+ {id:"T2", dom:"Time", name:"First–then", mat:"Two picture cards plus a favourite item", say:"“First this, then that.”", watch:"Does the first thing to get the second.", src:"A6.2"},
+ {id:"T3", dom:"Time", name:"Time for something", mat:"A clock or a visual timer", say:"“When is your favourite show?”", watch:"Looks at the clock or timer, or uses a time word.", src:"A6.7"},
+ {id:"O7", dom:"Quantity", name:"Sharing equally", mat:"6 counters, 2 plates", say:"“Share them so both have the same.”", watch:"Deals them out one by one, or checks both piles.", src:"A6.8"}
+];
+
+const STATUS = [
+  {id:"independent", label:"Did it alone",        cls:"ok"},
+  {id:"hint",        label:"Needed a hint",       cls:""},
+  {id:"model",       label:"Needed a model",      cls:""},
+  {id:"notyet",      label:"Not yet emerging",    cls:"warn"},
+  {id:"noop",        label:"No opportunity yet",  cls:""}
+];
+
+const DEFAULT_PREF_ITEMS = ["Music","Videos","Bubbles","Water play","Balls","Building blocks","Drawing","Cars","Songs","Books","Sensory toys","A favourite snack"];
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  version: 2,
+  createdAt: null,
+  updatedAt: null,
+  childCode: null,
+  sessionId: null,
+  seq: 0,
+  outbox: [],
+  consent: { given:false, research:false, deviceOk:false, explainedStop:false },
+  respondent: "caregiver",
+  answers: { caregiver:{}, teacher:{} },
+  prefs: { items:[], pool:[], order:[], check:{}, notes:"", step:1 },
+  probes: { selected:[], results:{}, step:"select" },
+  review: { educator:"", role:"", confirmed:false, corrections:"", parentEcho:"", parentNote:"" },
+  ui: { stage:"welcome", section:"A1", probeIdx:0, openTier2:false, openTier3:false }
+};
+
+function makeChildCode(){
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = ""; for(let i=0;i<6;i++) s += A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+
+function ensureShape(){
+  if(!state.answers) state.answers = {caregiver:{},teacher:{}};
+  if(!state.answers.caregiver) state.answers.caregiver = {};
+  if(!state.answers.teacher) state.answers.teacher = {};
+  if(!state.prefs) state.prefs = {items:[],pool:[],order:[],check:{},notes:"",step:1};
+  if(!state.probes) state.probes = {selected:[],results:{},step:"select"};
+  if(!state.review) state.review = {educator:"",role:"",confirmed:false,corrections:"",parentEcho:"",parentNote:""};
+  if(!state.ui) state.ui = {stage:"welcome",section:"A1",probeIdx:0,openTier2:false,openTier3:false};
+  if(!state.consent) state.consent = {given:false,research:false,deviceOk:false,explainedStop:false};
+  if(!Array.isArray(state.outbox)) state.outbox = [];
+  if(!state.sessionId) state.sessionId = "s" + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+  if(!state.childCode){
+    const fromLS = (localStorage.getItem(LS_CHILD) || "").toUpperCase();
+    state.childCode = /^[A-Z2-9]{6}$/.test(fromLS) ? fromLS : makeChildCode();
+  }
+  localStorage.setItem(LS_CHILD, state.childCode);
+  if(typeof state.seq !== "number") state.seq = 0;
+}
+
+function save(){
+  state.updatedAt = new Date().toISOString();
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){}
+}
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){ Object.assign(state, JSON.parse(raw)); }
+  }catch(e){}
+  ensureShape();
+  if(!state.createdAt) state.createdAt = new Date().toISOString();
+}
+
+/* =========================================================
+   SYNC LAYER  — writes events to Apps Script
+   ========================================================= */
+let flushTimer = null;
+
+function setSyncNote(msg, cls){
+  const el = document.getElementById("savenote");
+  if(!el) return;
+  el.textContent = msg;
+  el.className = "small" + (cls ? " " + cls : "");
+}
+
+function logEvent(type, payload){
+  if(!state.consent.given) return;        // consent gate
+  if(TEST_MODE) return;                    // dry-run link
+  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) return;
+
+  state.seq = (state.seq || 0) + 1;
+  state.outbox.push(Object.assign({
+    eid: state.childCode + "-" + state.sessionId + "-" + state.seq,
+    type: type,
+    t: Date.now(),
+    stage: state.ui.stage
+  }, payload || {}));
+
+  if(state.outbox.length >= 20) flush();
+  else scheduleFlush();
+  save();
+}
+
+function scheduleFlush(){
+  clearTimeout(flushTimer);
+  flushTimer = setTimeout(() => flush(), NET.batchMs);
+}
+
+function flush(useBeacon){
+  if(!state.consent.given) return;
+  if(TEST_MODE) return;
+  if(!state.outbox.length) return;
+  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) return;
+
+  const batch = state.outbox.splice(0, 40);
+  const body = JSON.stringify({
+    token: NET.token,
+    childCode: state.childCode,
+    sessionId: state.sessionId,
+    respondent: state.respondent,
+    appVersion: NET.appVersion,
+    events: batch
+  });
+
+  const done = ok => {
+    if(ok){
+      setSyncNote("Saved · synced " + batch.length, "ok");
+    } else {
+      state.outbox.unshift.apply(state.outbox, batch);
+      setSyncNote("Offline — will retry", "warn");
+    }
+    save();
+  };
+
+  if(useBeacon && navigator.sendBeacon){
+    const ok = navigator.sendBeacon(NET.endpoint,
+      new Blob([body], {type:"text/plain;charset=utf-8"}));
+    done(ok);
+    return;
+  }
+
+  // no-cors POST: Apps Script cannot answer CORS preflight; text/plain is a simple request
+  fetch(NET.endpoint, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: new Blob([body], {type:"text/plain;charset=utf-8"}),
+    keepalive: true
+  }).then(() => done(true)).catch(() => done(false));
+}
+
+window.addEventListener("pagehide", () => flush(true));
+window.addEventListener("online", () => flush());
+setInterval(() => { if(state.outbox.length) flush(); }, 20000);
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+function esc(s){
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => (
+    {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]
+  ));
+}
+function ans(qid, resp){
+  resp = resp || state.respondent;
+  return state.answers[resp][qid] || {};
+}
+function isAnswered(qid){
+  const a = ans(qid);
+  if(a.dk || a.na) return true;
+  if(Array.isArray(a.v)) return a.v.length > 0;
+  return !!(a.v && String(a.v).trim());
+}
+function getv(qid){
+  const a = ans(qid);
+  if(a.dk) return "Don’t know";
+  if(a.na) return "Not applicable";
+  if(Array.isArray(a.v)) return a.v.length ? a.v.join(", ") : null;
+  return (a.v && String(a.v).trim()) ? a.v : null;
+}
+function hasReal(qid){
+  const a = ans(qid);
+  if(a.dk || a.na) return false;
+  if(Array.isArray(a.v)) return a.v.length > 0;
+  return !!(a.v && String(a.v).trim());
+}
+function splitList(v){
+  if(!v) return [];
+  if(Array.isArray(v)) return v;
+  return String(v).split(/[,;/]/).map(s=>s.trim()).filter(Boolean);
+}
+function requiredQs(){
+  const isT = state.respondent === "teacher";
+  return QB.filter(q => isT ? (q.t && q.tier <= 2) : q.tier === 1);
+}
+function requiredDone(){
+  return requiredQs().filter(q => isAnswered(q.id)).length;
+}
+
+/* =========================================================
+   RENDER SHELL
+   ========================================================= */
+const app = document.getElementById("app");
+const stagebar = document.getElementById("stagebar");
+
+const STAGES = [
+  {id:"welcome", label:"Start"},
+  {id:"consent", label:"Setup"},
+  {id:"intake",  label:"1 · Questions"},
+  {id:"prefs",   label:"2 · Preferences"},
+  {id:"probes",  label:"3 · Skills"},
+  {id:"review",  label:"4 · Review"}
+];
+
+function render(scrollTop){
+  const y = window.scrollY;
+  switch(state.ui.stage){
+    case "welcome": app.innerHTML = viewWelcome(); break;
+    case "consent": app.innerHTML = viewConsent(); break;
+    case "intake":  app.innerHTML = viewIntake();  break;
+    case "prefs":   app.innerHTML = viewPrefs();   break;
+    case "probes":  app.innerHTML = viewProbes();  break;
+    case "review":  app.innerHTML = viewReview();  break;
+    default:        app.innerHTML = viewWelcome();
+  }
+  renderStageBar();
+  window.scrollTo(0, scrollTop ? 0 : y);
+  if(!document.getElementById("savenote").textContent ||
+     document.getElementById("savenote").textContent === "Saved on this device"){
+    setSyncNote(state.outbox.length
+      ? "Saved · " + state.outbox.length + " pending"
+      : (state.updatedAt ? "Saved on this device" : "Nothing saved yet"));
+  }
+}
+
+function renderStageBar(){
+  stagebar.innerHTML = STAGES.map(s => {
+    const on = state.ui.stage === s.id;
+    const done = stageDone(s.id);
+    return `<button class="sbtn ${on?"on":(done?"done":"")}" data-act="go" data-to="${s.id}">${esc(s.label)}</button>`;
+  }).join("");
+}
+function stageDone(id){
+  if(id === "consent") return state.consent.given;
+  if(id === "intake")  return requiredDone() >= requiredQs().length;
+  if(id === "prefs")   return (state.prefs.order||[]).length > 0;
+  if(id === "probes")  return Object.keys(state.probes.results||{}).length > 0;
+  if(id === "review")  return !!(state.review && state.review.confirmed);
+  return false;
+}
+
+/* =========================================================
+   VIEW — welcome
+   ========================================================= */
+function viewWelcome(){
+  const started = Object.keys(state.answers.caregiver).length > 0 ||
+                  Object.keys(state.answers.teacher).length > 0;
+  return `
+  <div class="hero">
+    <div class="kicker">Baseline assessment</div>
+    <h1>Let’s find your child’s starting point</h1>
+    <p class="lead">Three short, play-based stages. This is not a test and not a score — it gives the tutor a starting estimate that the first teaching sessions will confirm or correct.</p>
+  </div>
+
+  <div class="card">
+    <h2>Your child code</h2>
+    <p>Keep this code. Your tutor uses it to open the right profile, and you can use it to ask us to delete your child’s data at any time.</p>
+    <div class="codebox">${esc(state.childCode)}</div>
+    <p class="muted small">If your tutor gave you a code, tap “Change code” below.</p>
+    <button class="mini" data-act="change-code">Change code</button>
+  </div>
+
+  <div class="card">
+    <h2>What this finds out</h2>
+    <ul class="ticks">
+      <li>How your child communicates and uses a screen</li>
+      <li>What motivates them</li>
+      <li>Where they are with numbers, money and time</li>
+      <li>What the tutor must never do</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>How it works</h2>
+    <p><strong>Stage 1 — Questions.</strong> About 5 to 7 minutes to start, then a few short prompts over the first weeks.</p>
+    <p><strong>Stages 2 and 3 — Play.</strong> 2 to 3 sessions of 5 to 8 minutes for preferences, then 3 to 4 sessions of 8 to 12 minutes for skills. Spread over about two weeks, so one bad day never defines your child.</p>
+    <p><strong>Stage 4 — Review.</strong> An educator checks the profile, then you confirm it sounds like your child.</p>
+    <p class="muted">You can stop at any time. Every question accepts “don’t know” or “not applicable”. Nothing is ever marked wrong.</p>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" data-act="go" data-to="${started ? "intake" : "consent"}">${started ? "Continue where I left off" : "Start"}</button>
+    ${started ? `<button class="btn" data-act="go" data-to="review">See the profile so far</button>` : ``}
+  </div>`;
+}
+
+/* =========================================================
+   VIEW — consent & setup
+   ========================================================= */
+function viewConsent(){
+  const c = state.consent;
+  const row = (k, label, sub) => `
+    <div class="item-row">
+      <div class="item-name">${esc(label)}${sub?`<div class="muted small" style="font-weight:400">${esc(sub)}</div>`:``}</div>
+      <button class="chip ${c[k]?"on":""}" data-act="consent" data-k="${k}">${c[k]?"Yes":"No"}</button>
+    </div>`;
+
+  return `
+  <h1>Setup</h1>
+  <p class="muted">A few things before we begin.</p>
+
+  <div class="card">
+    <h2>Your child code</h2>
+    <p>The tutor will use this code. It travels with every answer you submit.</p>
+    <div class="codebox">${esc(state.childCode)}</div>
+  </div>
+
+  <div class="card">
+    <h2>Consent</h2>
+    ${row("given", "I agree to these answers being used to plan teaching for my child")}
+    ${row("research", "I agree to de-identified answers being used for future research (optional)")}
+    ${row("deviceOk", "This device works for me — screen, sound and touch")}
+    ${row("explainedStop", "It has been explained that my child can stop at any time")}
+  </div>
+
+  <div class="card">
+    <h2>Who is filling this in?</h2>
+    <p class="muted small">Caregivers and teachers see different settings, so we ask both. Answers are stored separately but under the same child code.</p>
+    <div class="chips">
+      <button class="chip ${state.respondent==="caregiver"?"on":""}" data-act="resp" data-id="caregiver">Caregiver</button>
+      <button class="chip ${state.respondent==="teacher"?"on":""}" data-act="resp" data-id="teacher">Teacher or therapist</button>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn ghost" data-act="go" data-to="welcome">Back</button>
+    <button class="btn primary" data-act="go" data-to="intake" ${c.given?"":"disabled"}>Begin questions</button>
+  </div>
+  ${c.given?"":`<p class="muted small">Tick the first consent item to continue.</p>`}`;
+}
+
+/* =========================================================
+   VIEW — Stage 1 intake
+   ========================================================= */
+function viewIntake(){
+  const isT = state.respondent === "teacher";
+  const secs = SECS.filter(s => {
+    if(s.teacherOnly && !isT) return false;
+    return QB.some(q => q.s === s.id && (!isT || q.t));
+  });
+
+  let sec = secs.find(s => s.id === state.ui.section);
+  if(!sec){ sec = secs[0]; state.ui.section = sec.id; }
+
+  const qs  = QB.filter(q => q.s === sec.id && (!isT || q.t));
+  const t1  = qs.filter(q => q.tier === 1);
+  const t2  = qs.filter(q => q.tier === 2);
+  const t3  = qs.filter(q => q.tier === 3);
+
+  const total = requiredQs().length;
+  const done  = requiredDone();
+  const pct   = total ? Math.round(done / total * 100) : 0;
+
+  const nav = secs.map(s =>
+    `<button class="sbtn ${s.id===sec.id?"on":""}" data-act="section" data-id="${s.id}">${esc(s.name)}</button>`
+  ).join("");
+
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <div>
+      <div class="kicker">Stage 1 · ${isT?"Teacher / therapist":"Caregiver"} questions</div>
+      <h1 style="margin:.1em 0 .2em">${esc(sec.name)}</h1>
+    </div>
+    <button class="btn small" data-act="resp" data-id="${isT?"caregiver":"teacher"}">
+      Switch to ${isT?"caregiver":"teacher"}
+    </button>
+  </div>
+
+  <div class="prog"><i style="width:${pct}%"></i></div>
+  <p class="muted small">${done} of ${total} must-have questions answered. “Don’t know” is fine.</p>
+
+  <div class="stagebar noprint" style="position:static;border:0;padding:8px 0;background:transparent">${nav}</div>
+
+  <div class="card">
+    ${t1.length ? t1.map(qCard).join("") : `<p class="muted">No must-have questions in this section.</p>`}
+  </div>
+
+  ${t2.length ? `
+  <div class="card">
+    <button class="btn small ghost" data-act="tier" data-n="2" style="width:100%;text-align:left">
+      ${state.ui.openTier2?"▾":"▸"} More questions (${t2.filter(q=>isAnswered(q.id)).length}/${t2.length} answered)
+    </button>
+    ${state.ui.openTier2 ? `<div style="margin-top:8px">${t2.map(qCard).join("")}</div>` : ``}
+  </div>` : ``}
+
+  ${t3.length ? `
+  <div class="card">
+    <button class="btn small ghost" data-act="tier" data-n="3" style="width:100%;text-align:left">
+      ${state.ui.openTier3?"▾":"▸"} Deeper detail (${t3.filter(q=>isAnswered(q.id)).length}/${t3.length})
+    </button>
+    ${state.ui.openTier3 ? `<div style="margin-top:8px">${t3.map(qCard).join("")}</div>` : ``}
+  </div>` : ``}
+
+  <div class="actions">
+    <button class="btn ghost" data-act="prevsec">Previous section</button>
+    <button class="btn primary" data-act="nextsec">Next section</button>
+  </div>
+  <p class="muted small">You can stop at any time — everything is saved on this device and synced when you are online.</p>`;
+}
+
+function qCard(q){
+  const a = ans(q.id);
+  const blocked = a.dk || a.na;
+  const isT = state.respondent === "teacher";
+  let control = "";
+
+  if(blocked){
+    control = `<div class="blocked">${a.dk ? "Marked: don’t know" : "Marked: not applicable"} — tap the chip again to undo.</div>`;
+  } else if(q.type === "text"){
+    control = `<input class="inp" type="text" data-q="${q.id}" data-f="v"
+                 value="${esc(a.v || "")}" placeholder="${esc(q.ph || "Type here")}" autocomplete="off">`;
+  } else if(q.type === "date"){
+    control = `<input class="inp" type="date" data-q="${q.id}" data-f="v" value="${esc(a.v || "")}">`;
+  } else if(q.type === "multi"){
+    const arr = Array.isArray(a.v) ? a.v : [];
+    control = `<div class="chips">${q.opts.map(o =>
+      `<button class="chip ${arr.includes(o)?"on":""}" data-q="${q.id}" data-f="multi" data-opt="${esc(o)}" aria-pressed="${arr.includes(o)}">${esc(o)}</button>`
+    ).join("")}</div>`;
+  } else {
+    control = `<div class="chips">${q.opts.map(o =>
+      `<button class="chip ${a.v===o?"on":""}" data-q="${q.id}" data-f="set" data-val="${esc(o)}" aria-pressed="${a.v===o}">${esc(o)}</button>`
+    ).join("")}</div>`;
+  }
+
+  return `
+  <div class="qcard">
+    <div class="qid">${esc(q.id)}${q.t ? `<span class="tag">TEACHER TOO</span>` : ``}</div>
+    <div class="qtext">${esc(q.q)}
+      <button class="speak" data-act="speak" data-text="${esc(q.q)}" title="Read aloud" aria-label="Read question aloud">🔊</button>
+    </div>
+    <div class="feeds">${esc(q.feeds)}</div>
+    ${control}
+    <div class="meta-row">
+      <button class="mini ${a.dk?"on":""}" data-q="${q.id}" data-f="dk">Don’t know</button>
+      <button class="mini ${a.na?"on":""}" data-q="${q.id}" data-f="na">Not applicable</button>
+      <button class="mini ${a.note?"on":""}" data-act="note" data-q="${q.id}">Add a note</button>
+    </div>
+    ${a._showNote
+      ? `<textarea class="inp" style="margin-top:8px" data-q="${q.id}" data-f="note" placeholder="Anything else about this?">${esc(a.note||"")}</textarea>`
+      : ``}
+  </div>`;
+}
+
+/* =========================================================
+   VIEW — Stage 2 preferences
+   ========================================================= */
+function prefItems(){
+  if(!state.prefs.items || state.prefs.items.length === 0){
+    const seen = new Set();
+    const out = [];
+    const add = (label, src) => {
+      const l = String(label||"").trim();
+      if(!l) return;
+      const k = l.toLowerCase();
+      if(seen.has(k)) return;
+      seen.add(k);
+      out.push({ id:"p" + out.length, label:l, src:src, rating:"" });
+    };
+    splitList(getv("A7.5")).forEach(x => add(x, "Loves"));
+    splitList(getv("A7.3")).forEach(x => add(x, "Loves"));
+    splitList(getv("A7.4")).forEach(x => add(x, "Loves"));
+    DEFAULT_PREF_ITEMS.forEach(x => add(x, "Common"));
+    state.prefs.items = out;
+    save();
+  }
+  return state.prefs.items;
+}
+
+function viewPrefs(){
+  const p = state.prefs;
+  const step = p.step || 1;
+  const steps = ["Watch","Rank","Check"];
+
+  const stepper = `
+    <div class="stepbar">
+      ${steps.map((s,i)=>`<span class="step ${step===i+1?"on":(step>i+1?"done":"")}">${i+1}. ${esc(s)}</span>`).join("")}
+    </div>`;
+
+  if(step === 1){
+    const items = prefItems();
+    return `
+    <div class="kicker">Stage 2 · Preference assessment</div>
+    <h1>What does your child go to?</h1>
+    ${stepper}
+    <div class="card">
+      <p><strong>Free operant first.</strong> Put a few of these out, sit back for 3 to 5 minutes, and watch. Do not prompt. Record what actually happened.</p>
+      <p class="muted small">This is observation, not a test.</p>
+    </div>
+    <div class="card">
+      ${items.map(it => `
+        <div class="item-row">
+          <div class="item-name">${esc(it.label)}</div>
+          <div class="rate">
+            ${[["high","Went to it a lot"],["some","A little"],["ignored","Ignored"],["avoided","Avoided"]].map(([r,l])=>
+              `<button class="chip ${it.rating===r?"on":""}" data-act="pref-rate" data-id="${it.id}" data-r="${r}">${l}</button>`
+            ).join("")}
+          </div>
+        </div>`).join("")}
+      <div class="item-row" style="border-top:1px solid var(--line);margin-top:8px">
+        <input class="inp" id="newpref" type="text" placeholder="Add something your child loves…" style="flex:1">
+        <button class="btn small" data-act="pref-add">Add</button>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" data-act="pref-step" data-n="2">Next: rank the top few</button>
+    </div>`;
+  }
+
+  if(step === 2){
+    const items = prefItems();
+    const rated = items.filter(i => i.rating === "high" || i.rating === "some");
+    const pool = p.pool || [];
+    const suggestions = (rated.length ? rated : items).slice(0, 8);
+
+    return `
+    <div class="kicker">Stage 2 · Preference assessment</div>
+    <h1>Pick up to 5 to rank</h1>
+    ${stepper}
+    <div class="card">
+      <p>Choose the items that got the strongest reaction. We will run a short <strong>MSWO</strong> — the child picks one, it is removed, they pick again.</p>
+      <p class="muted small">${pool.length} of 5 selected. Pick at least 2.</p>
+      <div class="chips">
+        ${suggestions.map(it =>
+          `<button class="chip ${pool.includes(it.id)?"on":""}" data-act="pref-pool" data-id="${it.id}">${esc(it.label)}</button>`
+        ).join("")}
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" data-act="pref-step" data-n="1">Back</button>
+      <button class="btn primary" data-act="pref-startrank" ${pool.length>=2?"":"disabled"}>Start ranking</button>
+    </div>`;
+  }
+
+  if(step === 3){
+    const pool = p.pool || [];
+    const order = p.order || [];
+    const remaining = pool.filter(id => !order.includes(id));
+    const items = prefItems();
+    const label = id => (items.find(i => i.id === id) || {label:"?"}).label;
+
+    if(remaining.length <= 0){
+      return `
+      <div class="kicker">Stage 2 · Preference assessment</div>
+      <h1>Ranking done</h1>
+      ${stepper}
+      <div class="card">
+        ${order.map((id,i)=>`
+          <div class="rankrow">
+            <div class="ranknum ${i===0?"gold":""}">${i+1}</div>
+            <div style="flex:1;font-weight:650">${esc(label(id))}</div>
+          </div>`).join("")}
+      </div>
+      <div class="actions">
+        <button class="btn ghost" data-act="pref-reset-rank">Start ranking again</button>
+        <button class="btn primary" data-act="pref-step" data-n="4">Next: check the top three</button>
+      </div>`;
+    }
+
+    return `
+    <div class="kicker">Stage 2 · Preference assessment</div>
+    <h1>Trial ${order.length + 1}</h1>
+    ${stepper}
+    <div class="card">
+      <p><strong>Put these out together.</strong> Let your child take one. Tap the one they took.</p>
+      <p class="muted small">Do not guide their hand. If they take none after 30 seconds, mark “no pick”.</p>
+      ${remaining.map(id=>`<button class="pickbig" data-act="mswao-pick" data-id="${id}">${esc(label(id))}</button>`).join("")}
+      <button class="btn small ghost" data-act="mswao-pick" data-id="__none">No pick this time</button>
+    </div>`;
+  }
+
+  const order = (p.order || []).filter(id => id !== "__none");
+  const top3 = order.slice(0, 3);
+  const items = prefItems();
+  const label = id => (items.find(i => i.id === id) || {label:"?"}).label;
+  const avoids = (items.filter(i => i.rating === "avoided").map(i=>i.label))
+    .concat(splitList(getv("A7.8")));
+
+  return `
+  <div class="kicker">Stage 2 · Preference assessment</div>
+  <h1>Quick reinforcer check</h1>
+  ${stepper}
+  <div class="card">
+    <p>Offer each one briefly, on its own. Does it still work?</p>
+    ${top3.map(id=>`
+      <div class="item-row">
+        <div class="item-name">${esc(label(id))}</div>
+        <div class="rate">
+          ${[["still","Still wants it"],["lost","Lost interest"],["refused","Refused"]].map(([r,l])=>
+            `<button class="chip ${p.check[id]===r?"on":""}" data-act="pref-check" data-id="${id}" data-r="${r}">${l}</button>`
+          ).join("")}
+        </div>
+      </div>`).join("") || `<p class="muted">No items were ranked.</p>`}
+  </div>
+
+  <div class="card">
+    <h2>Reinforcer menu</h2>
+    <p>${top3.map((id,i)=>`<strong>${i+1}.</strong> ${esc(label(id))}`).join(" &nbsp;·&nbsp; ") || `<span class="muted">Not enough data yet.</span>`}</p>
+    ${avoids.length ? `<div class="alert warn"><strong>Avoid list:</strong> ${esc(avoids.join(", "))}</div>` : ``}
+    <textarea class="inp" data-act="pref-notes" placeholder="Notes from the preference sessions…">${esc(p.notes||"")}</textarea>
+  </div>
+
+  <div class="actions">
+    <button class="btn ghost" data-act="pref-step" data-n="3">Back</button>
+    <button class="btn primary" data-act="go" data-to="probes">Next: skill probing</button>
+  </div>`;
+}
+
+/* =========================================================
+   VIEW — Stage 3 skill probing
+   ========================================================= */
+function suggestProbes(){
+  const s = new Set();
+  const count = getv("A6.3");
+  if(!count || count === "Not yet" || count === "Up to 2") s.add("N5");
+  if(count === "Up to 2" || count === "Up to 3") s.add("N6");
+  if(count === "Up to 5" || count === "Up to 10" || count === "More than 10") { s.add("N6"); s.add("N7"); }
+  if(hasReal("A6.4")) s.add("N12");
+  if(hasReal("A6.8")) { s.add("N9"); s.add("O7"); }
+  if(hasReal("A6.6")) s.add("M2");
+  if(hasReal("A6.5")) { s.add("M1"); s.add("M4"); }
+  if(hasReal("A6.2")) { s.add("T1"); s.add("T2"); }
+  if(hasReal("A6.7")) s.add("T3");
+  if(s.size === 0){ ["N5","N6","M2","T1"].forEach(x=>s.add(x)); }
+  return Array.from(s);
+}
+
+function viewProbes(){
+  const p = state.probes;
+
+  if(p.step === "select"){
+    const suggested = suggestProbes();
+    return `
+    <div class="kicker">Stage 3 · Skill probing</div>
+    <h1>Which probes will you run?</h1>
+    <div class="card">
+      <p>These are <strong>gateway nodes</strong> on the numeracy skill graph. Each one is a short play activity, not a test. Suggested probes are based on your Stage 1 answers — usually 4 to 6 is enough for one child.</p>
+      <p class="muted small">Child time: 3 to 4 sessions of 8 to 12 minutes. Stop if the child tires or shows distress.</p>
+    </div>
+    <div class="card">
+      ${PROBES.map(pr => `
+        <div class="item-row">
+          <div class="item-name">
+            ${esc(pr.name)}
+            <div class="muted small" style="font-weight:400">${esc(pr.dom)} · ${esc(pr.id)}${suggested.includes(pr.id)?" · suggested":""}</div>
+          </div>
+          <button class="chip ${p.selected.includes(pr.id)?"on":""}" data-act="probe-toggle" data-id="${pr.id}">${p.selected.includes(pr.id)?"Selected":"Add"}</button>
+        </div>`).join("")}
+    </div>
+    <div class="actions">
+      <button class="btn ghost" data-act="probe-suggest">Use suggested (${suggested.length})</button>
+      <button class="btn primary" data-act="probe-start" ${p.selected.length?"":"disabled"}>Start probing (${p.selected.length})</button>
+    </div>`;
+  }
+
+  const list = PROBES.filter(pr => p.selected.includes(pr.id));
+  const idx = Math.min(state.ui.probeIdx || 0, list.length - 1);
+  const pr = list[idx];
+
+  if(!pr){
+    return `<h1>Skill probing</h1><p class="muted">No probes selected.</p>
+      <button class="btn" data-act="probe-back">Choose probes</button>`;
+  }
+
+  const result = p.results[pr.id];
+  const doneCount = list.filter(x => p.results[x.id]).length;
+
+  return `
+  <div class="kicker">Stage 3 · Probe ${idx+1} of ${list.length}</div>
+  <h1>${esc(pr.name)}</h1>
+  <div class="prog"><i style="width:${Math.round(doneCount/list.length*100)}%"></i></div>
+
+  <div class="card">
+    <dl class="kv">
+      <dt>You need</dt><dd>${esc(pr.mat)}</dd>
+      <dt>Say</dt><dd>${esc(pr.say)}</dd>
+      <dt>Watch for</dt><dd>${esc(pr.watch)}</dd>
+      <dt>Skill node</dt><dd>${esc(pr.dom)} · ${esc(pr.id)}</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>What happened?</h2>
+    <p class="muted small">Record what you saw. Nothing is shown to the child as wrong.</p>
+    <div class="chips">
+      ${STATUS.map(st =>
+        `<button class="chip ${result===st.id?"on":""}" data-act="probe-pick" data-id="${pr.id}" data-r="${st.id}">${esc(st.label)}</button>`
+      ).join("")}
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn ghost" data-act="probe-prev" ${idx===0?"disabled":""}>Back</button>
+    <button class="btn primary" data-act="probe-next">${idx === list.length-1 ? "Finish probing" : "Next probe"}</button>
+  </div>
+  <p class="muted small"><button class="mini" data-act="probe-back">Change selected probes</button></p>`;
+}
+
+/* =========================================================
+   VIEW — Stage 4 review
+   ========================================================= */
+function derivedSettings(){
+  const out = [];
+  const g = id => getv(id);
+
+  const vocab = g("A2.2");
+  let promptLen = "Start with 1 to 2 words plus a picture.";
+  if(vocab === "None") promptLen = "No spoken words. Use a single picture or sound cue, one at a time.";
+  else if(vocab === "1 to 10") promptLen = "1 to 2 word prompts with a picture. Never a full sentence.";
+  else if(vocab === "10 to 50") promptLen = "Short 2 to 3 word phrases with a picture.";
+  else if(vocab === "50 or more" || vocab === "Sentences") promptLen = "Short full sentences are fine.";
+  out.push(["Prompt length", promptLen]);
+
+  const ch = g("A2.6");
+  let choices = "2 choices to start; single card if unsure.";
+  if(ch === "Not yet") choices = "1 item at a time only. No choice screens yet.";
+  else if(ch === "Three or four") choices = "3 to 4 choices on screen.";
+  else if(ch === "More than four") choices = "Up to 6 choices, but never more than 4 at once on a busy screen.";
+  out.push(["Choices on screen", choices]);
+
+  const wait = g("A2.10");
+  if(wait) out.push(["Wait time after a question", wait]);
+
+  const att = g("A5.1a");
+  if(att) out.push(["Session length", att + " per block, then a break."]);
+
+  const sound = g("A4.1");
+  if(sound) out.push(["Sound", sound === "Gets upset" ? "Sound off by default. No sudden or loud effects." : sound === "Seeks them out" ? "Sound can be on; use it as a reward." : "Gentle sound, always with a mute option."]);
+
+  const density = g("A4.5");
+  if(density) out.push(["Screen density", density === "Often" || density === "Always" ? "One item per screen, plain background, no animation." : "Simple layout; keep decoration minimal."]);
+
+  const vision = g("A3.1");
+  if(vision === "Yes" || vision === "Sometimes") out.push(["Size and contrast", "Large, high-contrast targets. No low-contrast greys."]);
+
+  const touch = g("A3.3");
+  if(touch === "No") out.push(["Input", "Large targets, or a switch / adult-assisted touch."]);
+  else if(touch === "Sometimes") out.push(["Input", "Large targets (min 64px) and generous spacing."]);
+
+  const input = g("A3.5");
+  if(input && input !== "None") out.push(["Input aid", input]);
+
+  const order = (state.prefs.order || []).filter(x => x !== "__none").slice(0, 3);
+  if(order.length){
+    const items = state.prefs.items || [];
+    const labels = order.map(id => (items.find(i => i.id === id) || {}).label).filter(Boolean);
+    if(labels.length) out.push(["Reinforcers", labels.join(" → ")]);
+  }
+
+  return out;
+}
+
+function viewReview(){
+  const g = id => getv(id);
+
+  const comm = [["A2.1","Communicates by"],["A2.2","Vocabulary"],["A2.6","Choices"],["A2.10","Wait time"],["A2.7","Image style"],["A3.1","Vision"],["A3.3","Touches screen"],["A3.5","Input aid"],["A4.5","Overwhelmed by busy screens"]]
+    .map(([id,l]) => [l, g(id)]).filter(x => x[1]);
+
+  const motiv = [["A7.1","Asks for most"],["A7.3","Loves"],["A7.5","Favourite activities"],["A7.6","Praise that works"],["A7.2","Foods"]]
+    .map(([id,l]) => [l, g(id)]).filter(x => x[1]);
+
+  const numer = [["A6.3","Counting"],["A6.4","Recognises numbers"],["A6.5","Money concept"],["A6.6","Coins and notes"],["A6.7","Time"],["A6.8","More/less, sharing"]]
+    .map(([id,l]) => [l, g(id)]).filter(x => x[1]);
+
+  const probeRows = PROBES
+    .filter(pr => state.probes.results[pr.id])
+    .map(pr => [pr.dom + " · " + pr.name, (STATUS.find(s => s.id === state.probes.results[pr.id]) || {}).label]);
+
+  const neverDo = [["A3.7","Must not eat, touch or be exposed to"],["A7.9","Tutor must never"],["A8.4","Safety note"]]
+    .map(([id,l]) => [l, g(id)]).filter(x => x[1]);
+
+  const reg = [["A8.1","When they don’t want to"],["A8.2","Early warning signs"],["A8.3","What helps them recover"],["A4.6","Calms down / makes worse"]]
+    .map(([id,l]) => [l, g(id)]).filter(x => x[1]);
+
+  const settings = derivedSettings();
+  const r = state.review || {};
+  const reqTotal = requiredQs().length;
+  const reqDone = requiredDone();
+
+  return `
+  <div class="kicker">Stage 4 · Review</div>
+  <h1>Starting profile</h1>
+  <p class="lead">This is a starting estimate. The first teaching sessions will confirm or correct it. It is not a score, a label or a placement decision.</p>
+
+  <div class="card">
+    <h2>Your child code</h2>
+    <div class="codebox">${esc(state.childCode)}</div>
+    <p class="muted small">Quote this code when you talk to your tutor. You can also use it to ask us to delete your child’s data.</p>
+  </div>
+
+  ${reqDone < reqTotal ? `<div class="alert warn">${reqTotal - reqDone} must-have question${reqTotal-reqDone===1?"":"s"} still unanswered. You can still review — just be aware the profile is partial.</div>` : `<div class="alert ok">All must-have questions answered.</div>`}
+
+  ${neverDo.length ? `<div class="card">
+    <h2>⛔ Hard constraints — the tutor must never</h2>
+    ${neverDo.map(([k,v])=>`<div class="kv"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}
+  </div>` : ``}
+
+  <div class="card">
+    <h2>1 · How they communicate and access a screen</h2>
+    ${comm.length ? comm.map(([k,v])=>`<div class="kv"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") : `<p class="muted">Nothing recorded yet.</p>`}
+  </div>
+
+  <div class="card">
+    <h2>2 · What motivates them</h2>
+    ${motiv.length ? motiv.map(([k,v])=>`<div class="kv"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") : `<p class="muted">Nothing recorded yet.</p>`}
+    ${(state.prefs.order||[]).filter(x=>x!=="__none").length ? `
+      <h3 style="margin-top:14px">Ranked preferences</h3>
+      ${state.prefs.order.filter(x=>x!=="__none").map((id,i)=>{
+        const it = (state.prefs.items||[]).find(x=>x.id===id) || {};
+        return `<div class="rankrow"><div class="ranknum ${i===0?"gold":""}">${i+1}</div><div style="flex:1;font-weight:650">${esc(it.label||"?")}</div></div>`;
+      }).join("")}` : ``}
+  </div>
+
+  <div class="card">
+    <h2>3 · Where they are with numbers</h2>
+    ${numer.length ? numer.map(([k,v])=>`<div class="kv"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") : `<p class="muted">Nothing recorded yet.</p>`}
+    ${probeRows.length ? `<h3 style="margin-top:14px">Probes run</h3>${probeRows.map(([k,v])=>`<div class="kv"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}` : ``}
+  </div>
+
+  <div class="card">
+    <h2>4 · Regulation plan</h2>
+    ${reg.length ? reg.map(([k,v])=>`<div class="kv"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") : `<p class="muted">Nothing recorded yet.</p>`}
+  </div>
+
+  <div class="card">
+    <h2>Caregiver goals</h2>
+    <p>${esc(g("A1.7") || "Not recorded yet.")}</p>
+  </div>
+
+  <div class="card">
+    <h2>Suggested starter settings</h2>
+    <p class="muted small">Derived from the answers above. Confirm with the educator.</p>
+    ${settings.length ? settings.map(([k,v])=>`<div class="kv"><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("") : `<p class="muted">Not enough answers yet.</p>`}
+  </div>
+
+  <div class="card">
+    <h2>Educator review</h2>
+    <p class="muted small">An educator checks the profile against what they know, corrects it, and only then does it drive teaching.</p>
+    <div class="grid2">
+      <input class="inp" type="text" data-act="review" data-k="educator" value="${esc(r.educator||"")}" placeholder="Name">
+      <input class="inp" type="text" data-act="review" data-k="role" value="${esc(r.role||"")}" placeholder="Role">
+    </div>
+    <textarea class="inp" style="margin-top:10px" data-act="review" data-k="corrections" placeholder="Corrections to the profile…">${esc(r.corrections||"")}</textarea>
+    <div class="meta-row">
+      <button class="chip ${r.confirmed?"on":""}" data-act="review-toggle" data-k="confirmed">
+        ${r.confirmed ? "✓ Reviewed and confirmed" : "Mark as reviewed"}
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Parent confirmation</h2>
+    <p>Does this sound like your child?</p>
+    <div class="chips">
+      ${["Yes","Mostly","No"].map(o =>
+        `<button class="chip ${r.parentEcho===o?"on":""}" data-act="review" data-k="parentEcho" data-val="${o}">${o}</button>`
+      ).join("")}
+    </div>
+    <textarea class="inp" style="margin-top:10px" data-act="review" data-k="parentNote" placeholder="Anything that does not sound right?">${esc(r.parentNote||"")}</textarea>
+  </div>
+
+  <div class="actions noprint">
+    <button class="btn ghost" data-act="go" data-to="intake">Back to questions</button>
+    <button class="btn primary" data-act="submit">Send to tutor</button>
+    <button class="btn" data-act="print">Print / save as PDF</button>
+  </div>
+
+  <div class="card noprint" style="border-style:dashed">
+    <h2 class="small" style="color:var(--muted)">Test build notes</h2>
+    <p class="muted small">
+      The document’s “Section 10” was not included, so the tiering here is provisional. The numeracy skill graph and its gateway nodes were also not included — the probes are a draft set. Both need a special educator to confirm before launch.
+    </p>
+    <button class="mini" data-act="reset">Reset all answers on this device</button>
+  </div>`;
+}
+
+/* =========================================================
+   EVENTS
+   ========================================================= */
+document.addEventListener("click", (e) => {
+  const chip = e.target.closest("[data-f]");
+  if(chip && chip.dataset.q){ e.preventDefault(); handleAnswerChip(chip); return; }
+
+  const el = e.target.closest("[data-act]");
+  if(!el) return;
+  const act = el.dataset.act;
+
+  if(act === "go"){
+    const to = el.dataset.to;
+    if(to === "intake" && !state.consent.given && state.ui.stage !== "intake"){
+      state.ui.stage = "consent";
+    } else {
+      state.ui.stage = to;
+    }
+    logEvent("stage", { val: to });
+    save(); render(true); return;
+  }
+
+  if(act === "resp"){
+    state.respondent = el.dataset.id;
+    state.ui.section = "A1";
+    logEvent("respondent", { val: state.respondent });
+    save(); render(true); return;
+  }
+
+  if(act === "section"){
+    state.ui.section = el.dataset.id;
+    save(); render(true); return;
+  }
+
+  if(act === "nextsec" || act === "prevsec"){
+    const isT = state.respondent === "teacher";
+    const secs = SECS.filter(s => {
+      if(s.teacherOnly && !isT) return false;
+      return QB.some(q => q.s === s.id && (!isT || q.t));
+    });
+    const i = secs.findIndex(s => s.id === state.ui.section);
+    const n = act === "nextsec" ? i + 1 : i - 1;
+    if(n >= secs.length){ state.ui.stage = "prefs"; }
+    else if(n < 0){ state.ui.stage = "welcome"; }
+    else { state.ui.section = secs[n].id; }
+    logEvent("stage", { val: state.ui.stage });
+    save(); render(true); return;
+  }
+
+  if(act === "tier"){
+    if(el.dataset.n === "2") state.ui.openTier2 = !state.ui.openTier2;
+    else state.ui.openTier3 = !state.ui.openTier3;
+    save(); render(); return;
+  }
+
+  if(act === "note"){
+    const qid = el.dataset.q;
+    const a = ans(qid);
+    a._showNote = !a._showNote;
+    save(); render(); return;
+  }
+
+  if(act === "consent"){
+    const k = el.dataset.k;
+    state.consent[k] = !state.consent[k];
+    if(k === "given" && state.consent.given){
+      logEvent("consent", { val: { given:true, research: state.consent.research } });
+    }
+    save(); render(); return;
+  }
+
+  if(act === "speak"){
+    e.preventDefault(); speak(el.dataset.text); return;
+  }
+
+  if(act === "change-code"){
+    const v = (prompt("Enter the child code your tutor gave you (6 letters or numbers):") || "").trim().toUpperCase();
+    if(!v) return;
+    if(!/^[A-Z2-9]{6}$/.test(v)){ alert("Please enter exactly 6 letters or numbers."); return; }
+    state.childCode = v;
+    localStorage.setItem(LS_CHILD, v);
+    save(); render(true); return;
+  }
+
+  /* preferences */
+  if(act === "pref-rate"){
+    const it = prefItems().find(x => x.id === el.dataset.id);
+    if(it){ it.rating = (it.rating === el.dataset.r) ? "" : el.dataset.r; }
+    logEvent("pref-rate", { qid: el.dataset.id, val: it ? it.rating : "" });
+    save(); render(); return;
+  }
+  if(act === "pref-add"){
+    const input = document.getElementById("newpref");
+    const v = input && input.value.trim();
+    if(v){
+      const items = prefItems();
+      items.push({id:"p" + (Date.now() % 100000), label:v, src:"Added", rating:"high"});
+      logEvent("pref-add", { val: v });
+      save();
+    }
+    render(); return;
+  }
+  if(act === "pref-pool"){
+    const id = el.dataset.id;
+    const pool = state.prefs.pool || [];
+    const i = pool.indexOf(id);
+    if(i >= 0) pool.splice(i,1); else if(pool.length < 5) pool.push(id);
+    state.prefs.pool = pool;
+    state.prefs.order = [];
+    logEvent("pref-pool", { val: pool });
+    save(); render(); return;
+  }
+  if(act === "pref-startrank"){
+    state.prefs.order = [];
+    state.prefs.step = 3;
+    save(); render(true); return;
+  }
+  if(act === "mswao-pick"){
+    const id = el.dataset.id;
+    state.prefs.order = state.prefs.order || [];
+    state.prefs.order.push(id === "__none" ? "__none" : id);
+    const remaining = (state.prefs.pool || []).filter(x => !state.prefs.order.includes(x));
+    if(remaining.length === 1) state.prefs.order.push(remaining[0]);
+    logEvent("pref-pick", { val: id });
+    save(); render(); return;
+  }
+  if(act === "pref-reset-rank"){
+    state.prefs.order = [];
+    state.prefs.step = 2;
+    save(); render(true); return;
+  }
+  if(act === "pref-step"){
+    state.prefs.step = Number(el.dataset.n);
+    save(); render(true); return;
+  }
+  if(act === "pref-check"){
+    state.prefs.check = state.prefs.check || {};
+    const id = el.dataset.id;
+    state.prefs.check[id] = (state.prefs.check[id] === el.dataset.r) ? "" : el.dataset.r;
+    logEvent("pref-check", { qid: id, val: state.prefs.check[id] });
+    save(); render(); return;
+  }
+
+  /* probes */
+  if(act === "probe-toggle"){
+    const id = el.dataset.id;
+    const sel = state.probes.selected || [];
+    const i = sel.indexOf(id);
+    if(i >= 0) sel.splice(i,1); else sel.push(id);
+    state.probes.selected = sel;
+    logEvent("probe-select", { val: sel });
+    save(); render(); return;
+  }
+  if(act === "probe-suggest"){
+    state.probes.selected = suggestProbes();
+    logEvent("probe-suggest", { val: state.probes.selected });
+    save(); render(); return;
+  }
+  if(act === "probe-start"){
+    if(!(state.probes.selected || []).length) return;
+    state.probes.step = "run";
+    state.ui.probeIdx = 0;
+    save(); render(true); return;
+  }
+  if(act === "probe-back"){
+    state.probes.step = "select";
+    save(); render(true); return;
+  }
+  if(act === "probe-pick"){
+    state.probes.results = state.probes.results || {};
+    const id = el.dataset.id;
+    state.probes.results[id] = (state.probes.results[id] === el.dataset.r) ? "" : el.dataset.r;
+    logEvent("probe-result", { qid: id, val: state.probes.results[id] });
+    save(); render(); return;
+  }
+  if(act === "probe-prev"){
+    state.ui.probeIdx = Math.max(0, (state.ui.probeIdx||0) - 1);
+    save(); render(true); return;
+  }
+  if(act === "probe-next"){
+    const list = PROBES.filter(pr => (state.probes.selected||[]).includes(pr.id));
+    if((state.ui.probeIdx||0) >= list.length - 1){
+      state.ui.stage = "review";
+      logEvent("stage", { val: "review" });
+    } else {
+      state.ui.probeIdx = (state.ui.probeIdx||0) + 1;
+    }
+    save(); render(true); return;
+  }
+
+  /* review */
+  if(act === "review-toggle"){
+    state.review[el.dataset.k] = !state.review[el.dataset.k];
+    logEvent("review", { qid: el.dataset.k, val: state.review[el.dataset.k] });
+    save(); render(); return;
+  }
+
+  if(act === "submit"){
+    logEvent("snapshot", { val: JSON.stringify({
+      answers: state.answers, prefs: state.prefs,
+      probes: state.probes, review: state.review,
+      consent: state.consent, respondent: state.respondent
+    })});
+    logEvent("submit", { val: "review" });
+    flush(true);
+    setSyncNote("Sent to tutor ✓", "ok");
+    setTimeout(() => { setSyncNote("Saved on this device"); }, 4000);
+    return;
+  }
+
+  if(act === "print"){ window.print(); return; }
+
+  if(act === "reset"){
+    if(confirm("Delete all answers on this device? This cannot be undone.")){
+      localStorage.removeItem(KEY);
+      location.reload();
+    }
+    return;
+  }
+});
+
+/* text/textarea — debounced logging on input */
+const inputTimers = {};
+document.addEventListener("input", (e) => {
+  const el = e.target;
+
+  if(el.matches("input[data-f='v']") || el.matches("textarea[data-f='v']") || el.matches("textarea[data-f='note']")){
+    const qid = el.dataset.q;
+    const resp = state.respondent;
+    const a = state.answers[resp][qid] || (state.answers[resp][qid] = {v:null});
+    if(el.dataset.f === "note") a.note = el.value;
+    else a.v = el.value;
+    save();
+    clearTimeout(inputTimers[qid]);
+    inputTimers[qid] = setTimeout(() => {
+      logEvent("answer", { qid, val: el.dataset.f === "note" ? a.note : a.v });
+    }, 1500);
+    return;
+  }
+
+  if(el.dataset.act === "pref-notes"){
+    state.prefs.notes = el.value;
+    save();
+    clearTimeout(inputTimers.prefNotes);
+    inputTimers.prefNotes = setTimeout(() => {
+      logEvent("pref-note", { val: state.prefs.notes });
+    }, 1500);
+    return;
+  }
+
+  if(el.dataset.act === "review"){
+    state.review[el.dataset.k] = el.value;
+    save();
+    const k = el.dataset.k;
+    clearTimeout(inputTimers["rev_" + k]);
+    inputTimers["rev_" + k] = setTimeout(() => {
+      logEvent("review", { qid: k, val: state.review[k] });
+    }, 1500);
+    return;
+  }
+});
+
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-act='review'][data-val]");
+  if(!el) return;
+  const k = el.dataset.k, v = el.dataset.val;
+  state.review[k] = (state.review[k] === v) ? "" : v;
+  logEvent("review", { qid: k, val: state.review[k] });
+  save(); render();
+}, true);
+
+function handleAnswerChip(el){
+  const qid = el.dataset.q;
+  const resp = state.respondent;
+  const store = state.answers[resp];
+  const a = store[qid] || (store[qid] = { v:null });
+  const f = el.dataset.f;
+
+  if(f === "set"){
+    a.v = (a.v === el.dataset.val) ? null : el.dataset.val;
+    a.dk = false; a.na = false;
+  } else if(f === "multi"){
+    const opt = el.dataset.opt;
+    if(!Array.isArray(a.v)) a.v = [];
+    const i = a.v.indexOf(opt);
+    if(i >= 0) a.v.splice(i,1); else a.v.push(opt);
+    a.dk = false; a.na = false;
+  } else if(f === "dk"){
+    a.dk = !a.dk;
+    if(a.dk){ a.na = false; a.v = null; }
+  } else if(f === "na"){
+    a.na = !a.na;
+    if(a.na){ a.dk = false; a.v = null; }
+  }
+  logEvent("answer", { qid, val: {v: a.v, dk: a.dk, na: a.na} });
+  save(); render();
+}
+
+function speak(text){
+  if(!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.rate = 0.92;
+  window.speechSynthesis.speak(u);
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+load();
+render(true);
+</script>
+</body>
+</html>
