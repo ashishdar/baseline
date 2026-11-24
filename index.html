@@ -353,9 +353,9 @@ function setSyncNote(msg, cls){
 }
 
 function logEvent(type, payload){
-  if(!state.consent.given) return;        // consent gate
-  if(TEST_MODE) return;                    // dry-run link
-  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) return;
+  if(!state.consent.given) { console.log("BLOCKED: Consent not given"); return; }
+  if(TEST_MODE) { console.log("BLOCKED: Test mode is active"); return; }
+  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) { console.log("BLOCKED: Endpoint not configured"); return; }
 
   state.seq = (state.seq || 0) + 1;
   state.outbox.push(Object.assign({
@@ -364,6 +364,8 @@ function logEvent(type, payload){
     t: Date.now(),
     stage: state.ui.stage
   }, payload || {}));
+
+  console.log("Event logged:", type, "Outbox size:", state.outbox.length);
 
   if(state.outbox.length >= 20) flush();
   else scheduleFlush();
@@ -376,10 +378,12 @@ function scheduleFlush(){
 }
 
 function flush(useBeacon){
-  if(!state.consent.given) return;
-  if(TEST_MODE) return;
-  if(!state.outbox.length) return;
-  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) return;
+  if(!state.consent.given) { console.log("FLUSH BLOCKED: No consent"); return; }
+  if(TEST_MODE) { console.log("FLUSH BLOCKED: Test mode"); return; }
+  if(!state.outbox.length) { console.log("FLUSH BLOCKED: Outbox empty"); return; }
+  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) { console.log("FLUSH BLOCKED: Endpoint not configured"); return; }
+
+  console.log("FLUSHING TO GOOGLE SHEETS NOW...");
 
   const batch = state.outbox.splice(0, 40);
   const body = JSON.stringify({
