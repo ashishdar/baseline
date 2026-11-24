@@ -1156,7 +1156,7 @@ function viewReview(){
    EVENTS
    ========================================================= */
 document.addEventListener("click", (e) => {
-  const chip = e.target.closest("[data-f]");
+  const chip = e.target.closest("button[data-f]");
   if(chip && chip.dataset.q){ e.preventDefault(); handleAnswerChip(chip); return; }
 
   const el = e.target.closest("[data-act]");
