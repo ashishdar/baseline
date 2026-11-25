@@ -378,12 +378,10 @@ function scheduleFlush(){
 }
 
 function flush(useBeacon){
-  if(!state.consent.given) { console.log("FLUSH BLOCKED: No consent"); return; }
-  if(TEST_MODE) { console.log("FLUSH BLOCKED: Test mode"); return; }
-  if(!state.outbox.length) { console.log("FLUSH BLOCKED: Outbox empty"); return; }
-  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) { console.log("FLUSH BLOCKED: Endpoint not configured"); return; }
-
-  console.log("FLUSHING TO GOOGLE SHEETS NOW...");
+  if(!state.consent.given) return;
+  if(TEST_MODE) return;
+  if(!state.outbox.length) return;
+  if(!NET.endpoint || NET.endpoint.indexOf("PASTE_") === 0) return;
 
   const batch = state.outbox.splice(0, 40);
   const body = JSON.stringify({
@@ -394,6 +392,10 @@ function flush(useBeacon){
     appVersion: NET.appVersion,
     events: batch
   });
+  
+  // THIS IS THE FIX: URL encoding bypasses browser CORS issues
+  const formData = new URLSearchParams();
+  formData.append("payload", body);
 
   const done = ok => {
     if(ok){
@@ -406,18 +408,15 @@ function flush(useBeacon){
   };
 
   if(useBeacon && navigator.sendBeacon){
-    const ok = navigator.sendBeacon(NET.endpoint,
-      new Blob([body], {type:"text/plain;charset=utf-8"}));
+    const ok = navigator.sendBeacon(NET.endpoint, formData);
     done(ok);
     return;
   }
-
   // no-cors POST: Apps Script cannot answer CORS preflight; text/plain is a simple request
-  fetch(NET.endpoint, {
+ fetch(NET.endpoint, {
     method: "POST",
     mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: new Blob([body], {type:"text/plain;charset=utf-8"}),
+    body: formData, // No Content-Type header needed, browser sets it automatically
     keepalive: true
   }).then(() => done(true)).catch(() => done(false));
 }
