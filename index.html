@@ -392,10 +392,6 @@ function flush(useBeacon){
     appVersion: NET.appVersion,
     events: batch
   });
-  
-  // THIS IS THE FIX: URL encoding bypasses browser CORS issues
-  const formData = new URLSearchParams();
-  formData.append("payload", body);
 
   const done = ok => {
     if(ok){
@@ -408,15 +404,17 @@ function flush(useBeacon){
   };
 
   if(useBeacon && navigator.sendBeacon){
-    const ok = navigator.sendBeacon(NET.endpoint, formData);
+    const ok = navigator.sendBeacon(NET.endpoint,
+      new Blob([body], {type:"text/plain;charset=utf-8"}));
     done(ok);
     return;
   }
-  // no-cors POST: Apps Script cannot answer CORS preflight; text/plain is a simple request
- fetch(NET.endpoint, {
+
+  fetch(NET.endpoint, {
     method: "POST",
     mode: "no-cors",
-    body: formData, // No Content-Type header needed, browser sets it automatically
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: new Blob([body], {type:"text/plain;charset=utf-8"}),
     keepalive: true
   }).then(() => done(true)).catch(() => done(false));
 }
