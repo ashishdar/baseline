@@ -377,7 +377,7 @@ function scheduleFlush(){
   flushTimer = setTimeout(() => flush(), NET.batchMs);
 }
 
-  function flush(useBeacon){
+function flush(useBeacon){
   if(!state.consent.given) return;
   if(TEST_MODE) return;
   if(!state.outbox.length) return;
@@ -403,41 +403,20 @@ function scheduleFlush(){
     save();
   };
 
-  // --- BULLETPROOF FORM SUBMISSION ---
-  const iframeName = "hidden_iframe_" + Date.now();
-  const iframe = document.createElement("iframe");
-  iframe.name = iframeName;
-  iframe.style.display = "none";
-  document.body.appendChild(iframe);
-
-  const form = document.createElement("form");
-  form.method = "POST";
-  form.action = NET.endpoint;
-  form.target = iframeName;
-  form.style.display = "none";
-
-  const input = document.createElement("input");
-  input.type = "hidden";
-  input.name = "payload";
-  input.value = body;
-
-  form.appendChild(input);
-  document.body.appendChild(form);
-
-  try {
-    form.submit();
-    done(true);
-  } catch(e) {
-    done(false);
-  }
-
-  // Clean up the DOM after submission
-  setTimeout(() => {
-    document.body.removeChild(form);
-    document.body.removeChild(iframe);
-  }, 2000);
-}
- window.addEventListener("pagehide", () => flush(true));
+  // Use the CORS fetch that we just proved works!
+  fetch(NET.endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: body
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.ok) done(true);
+    else done(false);
+  })
+  .catch(() => done(false));
+}  
+window.addEventListener("pagehide", () => flush(true));
 window.addEventListener("online", () => flush());
 setInterval(() => { if(state.outbox.length) flush(); }, 20000);
 
