@@ -393,6 +393,10 @@ function flush(useBeacon){
     events: batch
   });
 
+  // THIS IS THE FIX: Use URLSearchParams to survive the Google redirect
+  const formData = new URLSearchParams();
+  formData.append("payload", body);
+
   const done = ok => {
     if(ok){
       setSyncNote("Saved · synced " + batch.length, "ok");
@@ -404,8 +408,7 @@ function flush(useBeacon){
   };
 
   if(useBeacon && navigator.sendBeacon){
-    const ok = navigator.sendBeacon(NET.endpoint,
-      new Blob([body], {type:"text/plain;charset=utf-8"}));
+    const ok = navigator.sendBeacon(NET.endpoint, formData);
     done(ok);
     return;
   }
@@ -413,9 +416,7 @@ function flush(useBeacon){
   fetch(NET.endpoint, {
     method: "POST",
     mode: "no-cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: new Blob([body], {type:"text/plain;charset=utf-8"}),
-    keepalive: true
+    body: formData // No headers needed; the browser sets them automatically
   }).then(() => done(true)).catch(() => done(false));
 }
 
