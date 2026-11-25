@@ -393,9 +393,6 @@ function scheduleFlush(){
     events: batch
   });
 
-  const formData = new URLSearchParams();
-  formData.append("payload", body);
-
   const done = ok => {
     if(ok){
       setSyncNote("Saved · synced " + batch.length, "ok");
@@ -406,21 +403,41 @@ function scheduleFlush(){
     save();
   };
 
-  if(useBeacon && navigator.sendBeacon){
-    // sendBeacon does not support manual redirects, but it is generally more reliable
-    const ok = navigator.sendBeacon(NET.endpoint, formData);
-    done(ok);
-    return;
+  // --- BULLETPROOF FORM SUBMISSION ---
+  const iframeName = "hidden_iframe_" + Date.now();
+  const iframe = document.createElement("iframe");
+  iframe.name = iframeName;
+  iframe.style.display = "none";
+  document.body.appendChild(iframe);
+
+  const form = document.createElement("form");
+  form.method = "POST";
+  form.action = NET.endpoint;
+  form.target = iframeName;
+  form.style.display = "none";
+
+  const input = document.createElement("input");
+  input.type = "hidden";
+  input.name = "payload";
+  input.value = body;
+
+  form.appendChild(input);
+  document.body.appendChild(form);
+
+  try {
+    form.submit();
+    done(true);
+  } catch(e) {
+    done(false);
   }
 
-  fetch(NET.endpoint, {
-    method: "POST",
-    mode: "no-cors",
-    body: formData,
-    redirect: 'manual' // This is the critical fix
-  }).then(() => done(true)).catch(() => done(false));
+  // Clean up the DOM after submission
+  setTimeout(() => {
+    document.body.removeChild(form);
+    document.body.removeChild(iframe);
+  }, 2000);
 }
-window.addEventListener("pagehide", () => flush(true));
+ window.addEventListener("pagehide", () => flush(true));
 window.addEventListener("online", () => flush());
 setInterval(() => { if(state.outbox.length) flush(); }, 20000);
 
