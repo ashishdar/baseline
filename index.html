@@ -377,7 +377,7 @@ function scheduleFlush(){
   flushTimer = setTimeout(() => flush(), NET.batchMs);
 }
 
-function flush(useBeacon){
+  function flush(useBeacon){
   if(!state.consent.given) return;
   if(TEST_MODE) return;
   if(!state.outbox.length) return;
@@ -393,7 +393,6 @@ function flush(useBeacon){
     events: batch
   });
 
-  // THIS IS THE FIX: URLSearchParams survives the Google redirect
   const formData = new URLSearchParams();
   formData.append("payload", body);
 
@@ -408,6 +407,7 @@ function flush(useBeacon){
   };
 
   if(useBeacon && navigator.sendBeacon){
+    // sendBeacon does not support manual redirects, but it is generally more reliable
     const ok = navigator.sendBeacon(NET.endpoint, formData);
     done(ok);
     return;
@@ -416,7 +416,8 @@ function flush(useBeacon){
   fetch(NET.endpoint, {
     method: "POST",
     mode: "no-cors",
-    body: formData // Browser sets the Content-Type automatically
+    body: formData,
+    redirect: 'manual' // This is the critical fix
   }).then(() => done(true)).catch(() => done(false));
 }
 window.addEventListener("pagehide", () => flush(true));
