@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+<meta name="theme-color" content="#2f5bd7"/>
+<title>Baseline Assessment (Exhaustive)</title>
+<style>
+:root{
+  --bg:#f2f5fb; --card:#fff; --ink:#141b2b; --muted:#5a6577;
+  --line:#dbe2ee; --brand:#2f5bd7; --brand-soft:#e7eefd; --brand-ink:#1f3fa0;
+  --ok:#1a7f4b; --ok-soft:#e3f5ea; --warn:#b45309; --warn-soft:#fdf1e0;
+  --stop:#b91c1c; --stop-soft:#fdecec; --radius:16px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  background:var(--bg);color:var(--ink);font-size:17px;line-height:1.5;
+  -webkit-text-size-adjust:100%;padding-bottom:60px}
+h1{font-size:1.6rem;line-height:1.2;margin:.2em 0 .4em}
+h2{font-size:1.12rem;margin:0 0 .5em}
+h3{font-size:1rem;margin:0 0 .35em}
+p{margin:.4em 0}
+ul{margin:.3em 0 .3em 1.1em;padding:0}
+li{margin:.25em 0}
+.muted{color:var(--muted);font-size:.92rem}
+.small{font-size:.85rem}
+.topbar{position:sticky;top:0;z-index:20;display:flex;justify-content:space-between;
+  align-items:center;gap:10px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--line)}
+.topbar .dot{width:10px;height:10px;border-radius:50%;background:var(--brand);
+  display:inline-block;margin-right:8px}
+#savenote{font-size:.76rem;color:var(--muted);text-align:right}
+#savenote.ok{color:var(--ok)}
+#savenote.warn{color:var(--warn)}
+.stagebar{position:sticky;top:49px;z-index:19;display:flex;gap:6px;overflow-x:auto;
+  padding:8px 16px;background:#fff;border-bottom:1px solid var(--line);scrollbar-width:none}
+.stagebar::-webkit-scrollbar{display:none}
+.sbtn{flex:0 0 auto;border:1px solid var(--line);background:#fff;color:var(--muted);
+  border-radius:999px;padding:7px 13px;font-size:.85rem;font-weight:600;cursor:pointer;
+  min-height:38px;white-space:nowrap;font-family:inherit}
+.sbtn.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.sbtn.done{background:var(--brand-soft);border-color:#c6d6fb;color:var(--brand-ink)}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin:0 0 14px;box-shadow:0 1px 2px rgba(20,27,43,.04)}
+.hero{padding:10px 0 4px}
+.kicker{font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);font-weight:800}
+.lead{font-size:1.02rem;color:var(--muted)}
+.ticks{list-style:none;margin:0;padding:0}
+.ticks li{padding-left:26px;position:relative;margin:.45em 0}
+.ticks li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:800}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin:14px 0 8px}
+.btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);
+  border-radius:12px;padding:12px 18px;font-size:1rem;font-weight:650;cursor:pointer;
+  min-height:50px;transition:.12s;font-family:inherit}
+.btn:active{transform:scale(.985)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn.primary:hover{background:#2549b5}
+.btn.ghost{background:transparent}
+.btn.small{min-height:40px;padding:8px 13px;font-size:.88rem;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.qcard{border-top:1px solid var(--line);padding:16px 0 6px;position:relative}
+.qcard:first-of-type{border-top:0;padding-top:4px}
+.qid{font-size:.72rem;font-weight:800;color:var(--brand);letter-spacing:.06em}
+.qtext{font-weight:600;margin:2px 0 4px;font-size:1.02rem;padding-right:32px}
+.feeds{font-size:.8rem;color:var(--muted);margin-bottom:10px}
+.tag{display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:.05em;
+  background:var(--brand-soft);color:var(--brand-ink);border-radius:6px;padding:2px 6px;
+  margin-left:6px;vertical-align:middle}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.chip{border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;
+  padding:10px 15px;font-size:.93rem;font-weight:600;cursor:pointer;min-height:44px;
+  font-family:inherit;transition:.12s}
+.chip:hover{border-color:#b9c7e6}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.inp{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;
+  font-size:1rem;font-family:inherit;color:var(--ink);background:#fff;min-height:50px}
+.inp:focus{outline:3px solid var(--brand-soft);border-color:var(--brand)}
+textarea.inp{min-height:88px;resize:vertical}
+.meta-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;align-items:center}
+.mini{border:1px dashed var(--line);background:transparent;color:var(--muted);
+  border-radius:999px;padding:6px 12px;font-size:.8rem;font-weight:600;cursor:pointer;
+  min-height:36px;font-family:inherit}
+.mini.on{background:var(--warn-soft);border-color:#ecc98f;color:var(--warn);border-style:solid}
+.blocked{padding:12px;border-radius:12px;background:#f7f8fb;border:1px dashed var(--line);color:var(--muted)}
+.speak{border:0;background:transparent;cursor:pointer;font-size:1.05rem;padding:4px 8px;
+  border-radius:8px;line-height:1}
+.speak:hover{background:var(--brand-soft)}
+.info-btn{position:absolute;top:14px;right:0;border:0;background:transparent;color:var(--brand);font-size:1.1rem;cursor:pointer}
+.info-box{background:var(--brand-soft);border-left:4px solid var(--brand);padding:10px 14px;border-radius:8px;margin:8px 0;font-size:.88rem;color:var(--brand-ink);display:none}
+.info-box.show{display:block}
+.prog{height:8px;background:#e6ebf5;border-radius:99px;overflow:hidden;margin:8px 0}
+.prog>i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:.25s}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.item-row{display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.item-row:last-child{border-bottom:0}
+.item-name{font-weight:650;flex:1 1 140px}
+.rate{display:flex;gap:6px;flex-wrap:wrap}
+.rate .chip{padding:8px 11px;font-size:.82rem;min-height:40px}
+.pickbig{display:block;width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;
+  border-radius:14px;padding:16px;font-size:1.05rem;font-weight:650;cursor:pointer;
+  margin:0 0 10px;font-family:inherit;min-height:60px}
+.pickbig:hover{border-color:var(--brand);background:var(--brand-soft)}
+.rankrow{display:flex;gap:12px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.rankrow:last-child{border-bottom:0}
+.ranknum{width:32px;height:32px;flex:0 0 32px;border-radius:50%;background:var(--brand);
+  color:#fff;display:grid;place-items:center;font-weight:800;font-size:.9rem}
+.ranknum.gold{background:#c99a1a}
+.kv{display:grid;grid-template-columns:minmax(120px,38%) 1fr;gap:8px 14px;padding:6px 0;
+  border-bottom:1px solid var(--line);font-size:.94rem}
+.kv:last-child{border-bottom:0}
+.kv dt{color:var(--muted);font-weight:600}
+.kv dd{margin:0;font-weight:600}
+.alert{border-radius:12px;padding:12px 14px;margin:10px 0;font-size:.93rem}
+.alert.stop{background:var(--stop-soft);border:1px solid #f3c3c3;color:#7f1d1d}
+.alert.warn{background:var(--warn-soft);border:1px solid #f0d5aa;color:#7c4a08}
+.alert.ok{background:var(--ok-soft);border:1px solid #b9e3c9;color:#14532d}
+.stepbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.step{font-size:.8rem;font-weight:700;color:var(--muted);padding:5px 10px;border-radius:999px;background:#e9eef8}
+.step.on{background:var(--brand);color:#fff}
+.step.done{background:var(--brand-soft);color:var(--brand-ink)}
+.codebox{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:800;
+  letter-spacing:.12em;font-size:1.5rem;background:var(--brand-soft);color:var(--brand-ink);
+  border-radius:12px;padding:10px 16px;display:inline-block;margin:6px 0}
+.iep-card{background:#fff;border:1px solid var(--line);border-left:4px solid #c99a1a;border-radius:8px;padding:16px;margin:10px 0}
+.iep-card h4{margin:0 0 6px;font-size:1rem;color:var(--ink)}
+.iep-card .obj{margin:6px 0 0;padding-left:20px;font-size:.9rem;color:var(--muted)}
+@media print{
+  body{background:#fff;padding:0}
+  .noprint{display:none!important}
+  .wrap{max-width:100%;padding:0}
+  .card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;page-break-inside:avoid}
+  .stagebar,.topbar{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="topbar noprint">
+  <div><span class="dot"></span><strong>Baseline Assessment (Exhaustive)</strong></div>
+  <div id="savenote" class="small">Saved on this device</div>
+</header>
+<div class="stagebar noprint" id="stagebar"></div>
+<main id="app" class="wrap"></main>
+
+<script>
+"use strict";
+
+const NET = {
+  endpoint: "https://script.google.com/macros/s/AKfycbyZQ7uezN_2NJ9fbTj1Pu-z1-6UCbsEvi3Lo_b-LNqZg-H3YjSJd5MMAC3Qf7cwxFPJLQ/exec",
+  token:    "oLW9hVBKa3UMxx",
+  appVersion: "3.0-exhaustive", // Differentiated for A/B testing
+  batchMs: 4000
+};
+
+const KEY = "cwsn-baseline-exhaustive";
+const LS_CHILD = "cwsn-child-code";
+const TEST_MODE = new URLSearchParams(location.search).get("mode") === "test";
+
+const SECS = [
+  {id:"A1", name:"Child & Context"},
+  {id:"A2", name:"Communication"},
+  {id:"A3", name:"Vision, Hearing, Movement"},
+  {id:"A4", name:"Sensory Screen"},
+  {id:"A5", name:"Attention & Learning"},
+  {id:"A6", name:"Daily Life & Numeracy"},
+  {id:"A7", name:"Motivators & Fears"},
+  {id:"A8", name:"Behaviour & Support"},
+  {id:"A9", name:"For Teachers", teacherOnly:true},
+  {id:"A10", name:"SLD Module", condition: () => getv("A1.8") === "Specific Learning Disability"},
+  {id:"A11", name:"Visual Impairment", condition: () => getv("A1.8") === "Visual Impairment"},
+  {id:"A12", name:"Hearing Impairment", condition: () => getv("A1.8") === "Hearing Impairment"},
+  {id:"A13", name:"Transition (14+)", condition: () => ["14-18", "18+"].includes(getv("A1.9"))}
+];
+
+const SCALE = ["Never","Sometimes","Often","Always"];
+const YNS   = ["Yes","Sometimes","No"];
+
+const QB = [
+/* A1 — Context & Branching */
+{id:"A1.1",s:"A1",tier:1,type:"text",q:"What name does your child like to be called?",feeds:"Greeting and tutor voice",ph:"Their name or nickname"},
+{id:"A1.2",s:"A1",tier:1,type:"date",q:"What is your child’s date of birth?",feeds:"Age-appropriate themes and safety only"},
+{id:"A1.8",s:"A1",tier:1,type:"set",q:"What is the primary diagnosis or disability category?",feeds:"Triggers specific assessment modules",opts:["Autism / Intellectual Disability","Specific Learning Disability","Visual Impairment","Hearing Impairment","Multiple / Other"]},
+{id:"A1.9",s:"A1",tier:1,type:"set",q:"What is the child's age group?",feeds:"Triggers age-specific benchmarks",opts:["0-5 (Early Intervention)","6-10 (Primary)","11-13 (Middle School)","14-18 (Secondary/Transition)","18+ (Adult)"]},
+{id:"A1.3",s:"A1",tier:1,type:"text",q:"Which languages are spoken at home, and which does your child understand best?",feeds:"Language of prompts"},
+{id:"A1.4",s:"A1",tier:2,t:true,type:"text",q:"Does your child go to school or a therapy centre? Which class or programme?",feeds:"Teacher link, alignment with school"},
+{id:"A1.5",s:"A1",tier:1,type:"text",q:"Who will usually sit with your child during sessions, and when is your child at their best?",feeds:"Session scheduling"},
+{id:"A1.6",s:"A1",tier:2,type:"text",q:"Would you like to share a diagnosis or any reports? Sharing is optional.",feeds:"Context only"},
+{id:"A1.7",s:"A1",tier:1,type:"text",q:"What do you most want your child to be able to do in daily life in the next year?",feeds:"Caregiver priorities"},
+
+/* A2 — Communication */
+{id:"A2.1",s:"A2",tier:1,type:"multi",q:"How does your child usually tell you what they want?",feeds:"Input mode",opts:["Speech","Single words","Gestures","Pointing","Pictures or symbols","A device or app","Signs","Eye gaze","Sounds","Leading you by the hand","Behaviour"]},
+{id:"A2.2",s:"A2",tier:1,type:"set",q:"How many words, signs or pictures does your child use?",feeds:"Prompt length",opts:["None","1 to 10","10 to 50","50 or more","Sentences"],desc:"This determines how we talk to the child. If they use 0-10 words, we use 1-2 word phrases with pictures. If they use sentences, we can speak normally."},
+{id:"A2.3",s:"A2",tier:2,t:true,type:"set",q:"Does your child understand simple instructions, for example “bring the cup”?",feeds:"Instruction complexity",opts:SCALE},
+{id:"A2.4",s:"A2",tier:2,type:"set",q:"Does your child respond to their name?",feeds:"Attention cues",opts:SCALE},
+{id:"A2.5",s:"A2",tier:2,type:"text",q:"Can your child show yes and no? How?",feeds:"Answer format",ph:"e.g. nods, says “no”, pushes the plate away"},
+{id:"A2.6",s:"A2",tier:1,type:"set",q:"Can your child choose between two things when shown, such as two snacks?",feeds:"Number of choices on screen",opts:["Not yet","Two things","Three or four","More than four"]},
+{id:"A2.7",s:"A2",tier:2,type:"multi",q:"Does your child recognise pictures, photos or symbols of real things?",feeds:"Image style",opts:["Photos","Drawings","Line symbols","None yet"]},
+{id:"A2.8",s:"A2",tier:3,t:true,type:"set",q:"Can your child follow a picture schedule or first–then card?",feeds:"Visual supports",opts:YNS},
+{id:"A2.9",s:"A2",tier:2,type:"set",q:"Does your child imitate actions or sounds?",feeds:"Whether model prompts will work",opts:SCALE},
+{id:"A2.10",s:"A2",tier:1,t:true,type:"set",q:"How long does your child need to answer after a question?",feeds:"Wait time",opts:["About 3 seconds","5 to 10 seconds","Longer","Not sure"],desc:"Always wait at least 5-10 seconds before repeating a question. Children with disabilities often need extra processing time."},
+{id:"A2.11",s:"A2",tier:2,type:"text",q:"Does your child use any communication device or app? Which one?",feeds:"Compatibility"},
+
+/* A3 — Vision, Hearing, Movement */
+{id:"A3.1",s:"A3",tier:1,type:"set",q:"Does your child wear glasses, or have trouble seeing small or low-contrast things?",feeds:"Size and contrast",opts:YNS},
+{id:"A3.2",s:"A3",tier:1,type:"text",q:"Does your child have a hearing difference, or use hearing aids?",feeds:"Audio and captions"},
+{id:"A3.3",s:"A3",tier:1,type:"set",q:"Can your child touch a tablet screen accurately with one finger?",feeds:"Button size",opts:YNS},
+{id:"A3.4",s:"A3",tier:2,type:"set",q:"Can your child pick up small items such as coins or counters?",feeds:"Physical materials",opts:YNS},
+{id:"A3.5",s:"A3",tier:2,type:"multi",q:"Does your child use a mouse, switch, stylus or other aid?",feeds:"Input options",opts:["Mouse","Switch","Stylus","Keyboard","None","Other"]},
+{id:"A3.6",s:"A3",tier:2,type:"text",q:"Is there anything about positioning or fatigue we should know?",feeds:"Session length"},
+{id:"A3.7",s:"A3",tier:1,type:"text",q:"Is there anything your child must not eat, touch or be exposed to?",feeds:"Hard safety constraints"},
+
+/* A4 — Sensory Screen */
+{id:"A4.1",s:"A4",tier:2,type:"set",q:"How does your child react to loud or sudden sounds?",feeds:"Volume, sound effects",opts:["Gets upset","Notices but is fine","No reaction","Seeks them out"]},
+{id:"A4.2",s:"A4",tier:1,type:"set",q:"How often is your child upset by bright or flashing screens?",feeds:"Brightness, animation",opts:SCALE},
+{id:"A4.3",s:"A4",tier:2,type:"text",q:"Does your child like or avoid particular textures, touch or messy play?",feeds:"Physical materials"},
+{id:"A4.4",s:"A4",tier:3,type:"set",q:"Does your child seek movement — spinning, jumping or deep pressure?",feeds:"Movement breaks",opts:SCALE},
+{id:"A4.5",s:"A4",tier:1,t:true,type:"set",q:"Does your child get overwhelmed by busy screens or many items at once?",feeds:"Screen density",opts:SCALE},
+{id:"A4.6",s:"A4",tier:1,type:"text",q:"What helps your child calm down, and what makes things worse?",feeds:"Regulation plan"},
+
+/* A5 — Attention & Learning */
+{id:"A5.1a",s:"A5",tier:1,t:true,type:"set",q:"How long can your child sit and do an activity they enjoy?",feeds:"Block length",opts:["Under 2 minutes","2 to 5 minutes","5 to 10 minutes","Over 10 minutes"]},
+{id:"A5.1b",s:"A5",tier:2,t:true,type:"set",q:"And an activity they do not enjoy?",feeds:"Block length",opts:["Under 2 minutes","2 to 5 minutes","5 to 10 minutes","Over 10 minutes"]},
+{id:"A5.2",s:"A5",tier:2,type:"multi",q:"How does your child learn best?",feeds:"Method defaults",opts:["Watching","Doing with hands","Hearing","Pictures","Repetition","Music or rhythm"]},
+{id:"A5.3",s:"A5",tier:2,t:true,type:"set",q:"Does your child get frustrated when they make a mistake? How do they show it?",feeds:"Error handling",opts:SCALE},
+{id:"A5.4",s:"A5",tier:2,type:"set",q:"Does your child need to be told it is finished, or shown how much is left?",feeds:"Progress bar, end cues",opts:YNS},
+{id:"A5.5",s:"A5",tier:3,type:"set",q:"Does your child do better with the same routine each time, or with variety?",feeds:"Session structure",opts:["Same routine each time","Variety","It varies"]},
+{id:"A5.6",s:"A5",tier:2,type:"set",q:"Does your child accept help from an adult, or insist on doing it alone?",feeds:"Prompt style",opts:SCALE},
+
+/* A6 — Adaptive & Numeracy */
+{id:"A6.1",s:"A6",tier:2,t:true,type:"multi",q:"Which of these can your child do alone: eating, drinking, toileting, dressing?",feeds:"Daily-living context",opts:["Eating","Drinking","Toileting","Dressing"]},
+{id:"A6.2",s:"A6",tier:2,type:"set",q:"Does your child follow a daily routine, such as morning or bedtime, with pictures or words?",feeds:"T1 and T2 starting zone",opts:["Does it alone","With reminders","With help","Not yet","Has never had the chance"]},
+{id:"A6.3",s:"A6",tier:1,type:"set",q:"Can your child say or show how many — for example “give me two biscuits”? Up to what number?",feeds:"N5 and N6 starting zone",opts:["Not yet","Up to 2","Up to 3","Up to 5","Up to 10","More than 10"]},
+{id:"A6.4",s:"A6",tier:1,type:"text",q:"Does your child recognise any numbers? Which ones, and where (clock, phone, house, price)?",feeds:"N7 and N12 starting zone"},
+{id:"A6.5",s:"A6",tier:2,type:"set",q:"Does your child know that money is used to buy things? Have they handed over money?",feeds:"M1 and M4 starting zone",opts:["Not yet","Knows money buys things","Has handed over money","Both"]},
+{id:"A6.6",s:"A6",tier:1,type:"text",q:"Does your child recognise coins or notes? Which ones?",feeds:"M2 starting zone"},
+{id:"A6.7",s:"A6",tier:2,type:"set",q:"Does your child tell you when it is time for something, or look at a clock?",feeds:"T3 starting zone",opts:["Not yet","Knows routine times","Looks at a clock","Tells the time"]},
+{id:"A6.8",s:"A6",tier:2,type:"set",q:"Does your child share things equally, or know “more” and “less”?",feeds:"N9 and O7 starting zone",opts:["Not yet","Knows more and less","Shares equally","Both"]},
+{id:"A6.9",s:"A6",tier:3,type:"text",q:"Does your child use a phone or tablet independently? For what?",feeds:"Interface comfort"},
+{id:"A6.10",s:"A6",tier:2,type:"set",q:"Does your child go out, for example to a shop, with you? Do they take part?",feeds:"Real-world practice",opts:["Never","Goes but does not take part","Takes part with help","Takes part"]},
+{id:"A6.11",s:"A6",tier:3,t:true,type:"text",q:"How does your child get along with other children and adults?",feeds:"Social context"},
+{id:"A6.12",s:"A6",tier:2,type:"multi",q:"Does your child stay safe with: strangers, roads, hot things, own name?",feeds:"Safety teaching priorities",opts:["Strangers","Roads","Hot things","Own name","Own address","None yet"]},
+
+/* A7 — Motivators & Fears */
+{id:"A7.1",s:"A7",tier:1,type:"text",q:"What does your child ask for most? What would they do almost anything to get?",feeds:"Preference profile"},
+{id:"A7.2",s:"A7",tier:2,type:"text",q:"Which foods and drinks does your child love? Which do they refuse?",feeds:"Preference profile"},
+{id:"A7.3",s:"A7",tier:1,type:"text",q:"Which animals, characters, cartoons, songs or stories does your child love?",feeds:"Themes for sessions"},
+{id:"A7.4",s:"A7",tier:2,type:"text",q:"Which toys, objects, colours or shapes are favourites?",feeds:"Preference profile"},
+{id:"A7.5",s:"A7",tier:1,type:"multi",q:"What activities does your child love?",feeds:"Preference profile",opts:["Music","Dancing","Water play","Drawing","Cars","Building","Outdoors","Videos","Games","Other"]},
+{id:"A7.6",s:"A7",tier:2,type:"multi",q:"What kind of praise works, and which do they dislike?",feeds:"Reinforcer menu",opts:["Clapping","High five","A cheer","A hug","A sticker","A favourite song","A short video","“Well done”","Time to play"]},
+{id:"A7.7",s:"A7",tier:3,type:"text",q:"Who is your child’s favourite person? Does a particular person’s voice or face calm them?",feeds:"Comfort and regulation"},
+{id:"A7.8",s:"A7",tier:2,type:"multi",q:"What is your child afraid of or upset by?",feeds:"Avoid list",opts:["Sounds","Animals","The dark","Crowds","Certain people","Being corrected","Being rushed","Failing","Other"]},
+{id:"A7.9",s:"A7",tier:1,type:"text",q:"What should the tutor never use, say or show?",feeds:"Hard constraint — never do"},
+{id:"A7.10",s:"A7",tier:3,type:"text",q:"Are there themes that matter to your family (festivals, religion) to include or avoid?",feeds:"Cultural context"},
+
+/* A8 — Behaviour & Support */
+{id:"A8.1",s:"A8",tier:1,type:"multi",q:"When your child does not want to do something, what do they do?",feeds:"Stop-signal rules",opts:["Turns away","Says no","Pushes things away","Cries","Shouts","Leaves","Hits or throws","Other"]},
+{id:"A8.2",s:"A8",tier:1,type:"text",q:"What are the early signs that your child is getting tired, bored or upset?",feeds:"Auto-pause cues"},
+{id:"A8.3",s:"A8",tier:1,type:"text",q:"What works to help your child recover?",feeds:"Break activities"},
+{id:"A8.4",s:"A8",tier:2,type:"text",q:"Does your child hurt themselves or others? If so, when?",feeds:"Safety plan"},
+{id:"A8.5",s:"A8",tier:2,type:"set",q:"How does your child feel about being watched, filmed or recorded?",feeds:"Recording settings",opts:SCALE},
+{id:"A8.6",s:"A8",tier:2,type:"set",q:"How much support will you realistically be able to give?",feeds:"Session frequency",opts:["Every day","A few times a week","Once a week","Less often"]},
+
+/* A9 — Teachers */
+{id:"A9.1",s:"A9",tier:2,t:true,type:"text",q:"Which numeracy skills is the child working on in school, and at what prompt level?",feeds:"Alignment with school goals"},
+{id:"A9.2",s:"A9",tier:2,t:true,type:"multi",q:"Which teaching methods work best for this child?",feeds:"Method defaults",opts:["Time delay","Task analysis","Visual supports","Peer help","Other"]},
+{id:"A9.3",s:"A9",tier:3,t:true,type:"text",q:"Which reinforcers do you use, and how do they work with the child?",feeds:"Reinforcer menu"},
+{id:"A9.4",s:"A9",tier:3,t:true,type:"text",q:"What is the child’s IEP or goal plan, if there is one?",feeds:"Goal alignment"},
+{id:"A9.5",s:"A9",tier:3,t:true,type:"set",q:"How consistent is the child’s performance day to day?",feeds:"Reliability",opts:SCALE},
+{id:"A9.6",s:"A9",tier:2,t:true,type:"text",q:"Is there anything in the caregiver’s answers you would correct from what you see at school?",feeds:"Educator review"},
+
+/* A10 — SLD Module */
+{id:"A10.1",s:"A10",tier:1,type:"set",q:"Does the child struggle to decode simple words (e.g., 'cat', 'dog')?",feeds:"Reading intervention",opts:YNS},
+{id:"A10.2",s:"A10",tier:1,type:"set",q:"Does the child struggle with spelling or written expression?",feeds:"Writing intervention",opts:YNS},
+{id:"A10.3",s:"A10",tier:1,type:"set",q:"Does the child struggle with basic math facts or word problems?",feeds:"Math intervention",opts:YNS},
+
+/* A11 — VI Module */
+{id:"A11.1",s:"A11",tier:1,type:"set",q:"Can the child read large print text?",feeds:"Literacy access",opts:YNS},
+{id:"A11.2",s:"A11",tier:1,type:"set",q:"Is the child learning Braille?",feeds:"Literacy access",opts:["Not yet","Learning basics","Fluent"]},
+{id:"A11.3",s:"A11",tier:1,type:"set",q:"Does the child use a cane or need Orientation & Mobility training?",feeds:"Mobility goals",opts:YNS},
+
+/* A12 — HI Module */
+{id:"A12.1",s:"A12",tier:1,type:"set",q:"What is the child's primary mode of communication?",feeds:"Language access",opts:["Spoken language","Sign Language","Total Communication","AAC"]},
+{id:"A12.2",s:"A12",tier:1,type:"set",q:"Does the child use hearing aids or a cochlear implant consistently?",feeds:"Amplification use",opts:YNS},
+{id:"A12.3",s:"A12",tier:1,type:"set",q:"Does background noise significantly impact the child's learning?",feeds:"Environmental setup",opts:YNS},
+
+/* A13 — Transition Module */
+{id:"A13.1",s:"A13",tier:1,type:"set",q:"Can the child manage their own money (e.g., pay for a bus ticket)?",feeds:"Vocational/Independence",opts:["Not yet","With help","Independently"]},
+{id:"A13.2",s:"A13",tier:1,type:"set",q:"Does the child follow a visual work schedule independently?",feeds:"Vocational skills",opts:YNS},
+{id:"A13.3",s:"A13",tier:1,type:"set",q:"Can the child advocate for their own needs (e.g., ask for help)?",feeds:"Self-advocacy",opts:YNS}
+];
+
+/* State */
+const state = {
+  version: 3,
+  childCode: null,
+  consent: { given:false, research:false },
+  answers: { caregiver:{}, teacher:{} },
+  ui: { stage:"welcome", section:"A1", showInfo:{} }
+};
+
+function makeChildCode(){
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let s = ""; for(let i=0;i<6;i++) s += A[Math.floor(Math.random()*A.length)];
+  return s;
+}
+function ensureShape(){
+  if(!state.answers) state.answers = {caregiver:{},teacher:{}};
+  if(!state.consent) state.consent = {given:false,research:false};
+  if(!Array.isArray(state.outbox)) state.outbox = [];
+  if(!state.childCode){
+    const fromLS = (localStorage.getItem(LS_CHILD) || "").toUpperCase();
+    state.childCode = /^[A-Z2-9]{6}$/.test(fromLS) ? fromLS : makeChildCode();
+  }
+  localStorage.setItem(LS_CHILD, state.childCode);
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function load(){
+  try{ const raw = localStorage.getItem(KEY); if(raw){ Object.assign(state, JSON.parse(raw)); } }catch(e){}
+  ensureShape();
+}
+
+/* Sync */
+let flushTimer = null;
+function setSyncNote(msg, cls){
+  const el = document.getElementById("savenote");
+  if(!el) return;
+  el.textContent = msg;
+  el.className = "small" + (cls ? " " + cls : "");
+}
+function logEvent(type, payload){
+  if(!state.consent.given) return;
+  if(TEST_MODE) return;
+  state.outbox = state.outbox || [];
+  state.outbox.push(Object.assign({ type: type, t: Date.now() }, payload || {}));
+  if(state.outbox.length >= 20) flush();
+  else scheduleFlush();
+  save();
+}
+function scheduleFlush(){ clearTimeout(flushTimer); flushTimer = setTimeout(() => flush(), NET.batchMs); }
+function flush(useBeacon){
+  if(!state.consent.given) return;
+  if(TEST_MODE) return;
+  if(!state.outbox || !state.outbox.length) return;
+  const batch = state.outbox.splice(0, 40);
+  const body = JSON.stringify({
+    token: NET.token, childCode: state.childCode, sessionId: "s" + Date.now(),
+    respondent: "caregiver", appVersion: NET.appVersion, events: batch
+  });
+  const done = ok => {
+    if(ok) setSyncNote("Saved · synced " + batch.length, "ok");
+    else { state.outbox.unshift.apply(state.outbox, batch); setSyncNote("Offline — will retry", "warn"); }
+    save();
+  };
+  fetch(NET.endpoint, { method: "POST", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: body })
+  .then(res => res.json()).then(data => { if(data.ok) done(true); else done(false); }).catch(() => done(false));
+}
+
+/* Helpers */
+function esc(s){ return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function ans(qid){ return state.answers.caregiver[qid] || {}; }
+function getv(qid){
+  const a = ans(qid);
+  if(a.dk) return "Don't know"; if(a.na) return "Not applicable";
+  if(Array.isArray(a.v)) return a.v.length ? a.v.join(", ") : null;
+  return (a.v && String(a.v).trim()) ? a.v : null;
+}
+function isAnswered(qid){
+  const a = ans(qid);
+  if(a.dk || a.na) return true;
+  if(Array.isArray(a.v)) return a.v.length > 0;
+  return !!(a.v && String(a.v).trim());
+}
+
+function generateIEPGoals(){
+  const goals = [];
+  const add = (domain, goal, objectives) => goals.push({ domain, goal, objectives });
+
+  const vocab = getv("A2.2");
+  if(vocab === "None" || vocab === "1 to 10") {
+    add("Communication", "Student will use a 3-4 word phrase (vocal or AAC) to request desired items across 3 different settings.", ["Point to a picture symbol when named.", "Combine a picture symbol with a vocalization.", "Use a 2-word phrase with a model."]);
+  }
+  const counting = getv("A6.3");
+  if(counting === "Not yet" || counting === "Up to 2") {
+    add("Math", "Student will demonstrate 1:1 correspondence by counting 5 objects accurately in 4 out of 5 trials.", ["Touch each object while counting.", "Count to 3 objects accurately.", "Count to 5 objects accurately."]);
+  }
+  if(getv("A1.8") === "Specific Learning Disability") {
+    if(getv("A10.1") === "Yes") add("Reading", "Student will decode CVC words with 80% accuracy in isolation and in text.", ["Identify letter sounds for all 26 letters.", "Blend 3 sounds into a word.", "Read 10 CVC words in a list."]);
+    if(getv("A10.3") === "Yes") add("Math", "Student will solve 1-digit addition and subtraction problems using manipulatives with 80% accuracy.", ["Use counters to represent numbers up to 10.", "Add two sets of objects together.", "Subtract objects from a set."]);
+  }
+  if(getv("A1.8") === "Visual Impairment" && getv("A11.2") === "Learning basics") {
+    add("Braille Literacy", "Student will identify 10 Braille letters/symbols by touch with 90% accuracy.", ["Discriminate between different textures.", "Identify the 'a-j' Braille cells.", "Read 3-letter words in Braille."]);
+  }
+  if(["14-18", "18+"].includes(getv("A1.9")) && getv("A13.1") === "Not yet") {
+    add("Independent Living", "Student will independently purchase an item at a local shop using the next-dollar strategy in 4 out of 5 opportunities.", ["Identify the value of coins and notes.", "Hand over money and wait for change.", "Follow a visual shopping list."]);
+  }
+  if(goals.length === 0) add("General", "Student will engage in a 10-minute play-based learning activity with a preferred reinforcer.", ["Sit at the table for 5 minutes.", "Complete 3 consecutive tasks with a break."]);
+  return goals;
+}
+
+/* Views */
+const app = document.getElementById("app");
+const stagebar = document.getElementById("stagebar");
+const STAGES = [
+  {id:"welcome", label:"Start"}, {id:"consent", label:"Setup"},
+  {id:"intake",  label:"1 · Profile"}, {id:"review",  label:"2 · IEP Output"}
+];
+
+function render(scrollTop){
+  const y = window.scrollY;
+  switch(state.ui.stage){
+    case "welcome": app.innerHTML = viewWelcome(); break;
+    case "consent": app.innerHTML = viewConsent(); break;
+    case "intake":  app.innerHTML = viewIntake();  break;
+    case "review":  app.innerHTML = viewReview();  break;
+    default:        app.innerHTML = viewWelcome();
+  }
+  renderStageBar();
+  window.scrollTo(0, scrollTop ? 0 : y);
+}
+
+function renderStageBar(){
+  stagebar.innerHTML = STAGES.map(s => {
+    const on = state.ui.stage === s.id;
+    return `<button class="sbtn ${on?"on":""}" data-act="go" data-to="${s.id}">${esc(s.label)}</button>`;
+  }).join("");
+}
+
+function viewWelcome(){
+  const started = Object.keys(state.answers.caregiver).length > 0;
+  return `
+  <div class="hero">
+    <div class="kicker">Exhaustive Version</div>
+    <h1>Deep Baseline & IEP Profiler</h1>
+    <p class="lead">This version covers every developmental domain in depth. It takes about 20-25 minutes to complete but provides the most thorough data for the IEP engine.</p>
+  </div>
+  <div class="card">
+    <h2>Your child code</h2>
+    <div class="codebox">${esc(state.childCode)}</div>
+    <button class="mini" data-act="change-code">Change code</button>
+  </div>
+  <div class="actions">
+    <button class="btn primary" data-act="go" data-to="${started ? "intake" : "consent"}">${started ? "Continue" : "Start"}</button>
+  </div>`;
+}
+
+function viewConsent(){
+  const c = state.consent;
+  const row = (k, label) => `
+    <div class="item-row">
+      <div class="item-name">${esc(label)}</div>
+      <button class="chip ${c[k]?"on":""}" data-act="consent" data-k="${k}">${c[k]?"Yes":"No"}</button>
+    </div>`;
+  return `
+  <h1>Setup</h1>
+  <div class="card">
+    <h2>Consent</h2>
+    ${row("given", "I agree to these answers being used to plan teaching for my child")}
+    ${row("research", "I agree to de-identified answers being used for future research (optional)")}
+  </div>
+  <div class="actions">
+    <button class="btn primary" data-act="go" data-to="intake" ${c.given?"":"disabled"}>Begin</button>
+  </div>`;
+}
+
+function viewIntake(){
+  const isT = state.ui.respondent === "teacher";
+  const activeSecs = SECS.filter(s => {
+    if(s.teacherOnly && !isT) return false;
+    if(s.condition && !s.condition()) return false;
+    return true;
+  });
+  
+  let sec = activeSecs.find(s => s.id === state.ui.section) || activeSecs[0];
+  state.ui.section = sec.id;
+
+  const qs = QB.filter(q => q.s === sec.id && (!isT || q.t));
+  const t1 = qs.filter(q => q.tier === 1);
+  const t2 = qs.filter(q => q.tier === 2);
+  const t3 = qs.filter(q => q.tier === 3);
+
+  const nav = activeSecs.map(s =>
+    `<button class="sbtn ${s.id===sec.id?"on":""}" data-act="section" data-id="${s.id}">${esc(s.name)}</button>`
+  ).join("");
+
+  return `
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+    <div><div class="kicker">Stage 1 · Profiling</div><h1 style="margin:.1em 0 .2em">${esc(sec.name)}</h1></div>
+    <button class="btn small" data-act="resp" data-id="${isT?"caregiver":"teacher"}">Switch to ${isT?"Caregiver":"Teacher"}</button>
+  </div>
+  
+  <div class="stagebar noprint" style="position:static;border:0;padding:8px 0;background:transparent">${nav}</div>
+  
+  <div class="card">
+    ${t1.length ? t1.map(qCard).join("") : `<p class="muted">No must-have questions here.</p>`}
+  </div>
+
+  ${t2.length ? `
+  <div class="card">
+    <button class="btn small ghost" data-act="tier" data-n="2" style="width:100%;text-align:left">
+      ${state.ui.openTier2?"▾":"▸"} More questions (${t2.filter(q=>isAnswered(q.id)).length}/${t2.length} answered)
+    </button>
+    ${state.ui.openTier2 ? `<div style="margin-top:8px">${t2.map(qCard).join("")}</div>` : ``}
+  </div>` : ``}
+
+  ${t3.length ? `
+  <div class="card">
+    <button class="btn small ghost" data-act="tier" data-n="3" style="width:100%;text-align:left">
+      ${state.ui.openTier3?"▾":"▸"} Deeper detail (${t3.filter(q=>isAnswered(q.id)).length}/${t3.length})
+    </button>
+    ${state.ui.openTier3 ? `<div style="margin-top:8px">${t3.map(qCard).join("")}</div>` : ``}
+  </div>` : ``}
+
+  <div class="actions">
+    <button class="btn ghost" data-act="prevsec">Previous</button>
+    <button class="btn primary" data-act="nextsec">Next Section</button>
+  </div>`;
+}
+
+function qCard(q){
+  const a = ans(q.id);
+  const blocked = a.dk || a.na;
+  let control = "";
+
+  if(blocked){
+    control = `<div class="blocked">${a.dk ? "Marked: don’t know" : "Not applicable"}</div>`;
+  } else if(q.type === "text"){
+    control = `<input class="inp" type="text" data-q="${q.id}" data-f="v" value="${esc(a.v || "")}" placeholder="${esc(q.ph || "Type here")}">`;
+  } else if(q.type === "date"){
+    control = `<input class="inp" type="date" data-q="${q.id}" data-f="v" value="${esc(a.v || "")}">`;
+  } else if(q.type === "multi"){
+    const arr = Array.isArray(a.v) ? a.v : [];
+    control = `<div class="chips">${q.opts.map(o => `<button class="chip ${arr.includes(o)?"on":""}" data-q="${q.id}" data-f="multi" data-opt="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
+  } else {
+    control = `<div class="chips">${q.opts.map(o => `<button class="chip ${a.v===o?"on":""}" data-q="${q.id}" data-f="set" data-val="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
+  }
+
+  const infoId = "info_" + q.id;
+  const showInfo = state.ui.showInfo[q.id] ? "show" : "";
+  const infoIcon = q.desc ? `<button class="info-btn" data-act="toggle-info" data-id="${q.id}">ⓘ</button>` : "";
+
+  return `
+  <div class="qcard">
+    ${infoIcon}
+    <div class="qid">${esc(q.id)} ${q.t ? `<span class="tag">TEACHER</span>` : ``}</div>
+    <div class="qtext">${esc(q.q)}</div>
+    ${q.desc ? `<div id="${infoId}" class="info-box ${showInfo}"><strong>What this means:</strong> ${esc(q.desc)}</div>` : ""}
+    <div class="feeds">${esc(q.feeds)}</div>
+    ${control}
+    <div class="meta-row">
+      <button class="mini ${a.dk?"on":""}" data-q="${q.id}" data-f="dk">Don’t know</button>
+      <button class="mini ${a.na?"on":""}" data-q="${q.id}" data-f="na">N/A</button>
+    </div>
+  </div>`;
+}
+
+function viewReview(){
+  const goals = generateIEPGoals();
+  return `
+  <div class="kicker">Stage 2 · Output</div>
+  <h1>Exhaustive IEP Baseline</h1>
+  <p class="lead">This report translates the exhaustive assessment data into actionable Present Levels of Performance and Suggested IEP Goals.</p>
+
+  <div class="card">
+    <h2>Student Profile</h2>
+    <div class="kv"><dt>Child Code</dt><dd>${esc(state.childCode)}</dd></div>
+    <div class="kv"><dt>Age Group</dt><dd>${esc(getv("A1.9") || "Not specified")}</dd></div>
+    <div class="kv"><dt>Primary Disability</dt><dd>${esc(getv("A1.8") || "Not specified")}</dd></div>
+    <div class="kv"><dt>Communication</dt><dd>${esc(getv("A2.1") || "Not specified")}</dd></div>
+  </div>
+
+  <div class="card">
+    <h2>Present Levels of Performance (PLOP)</h2>
+    <div class="kv"><dt>Attention Span</dt><dd>${esc(getv("A5.1a") || "Unknown")}</dd></div>
+    <div class="kv"><dt>Counting</dt><dd>${esc(getv("A6.3") || "Unknown")}</dd></div>
+    <div class="kv"><dt>Reading / Decoding</dt><dd>${esc(getv("A10.1") || "Not assessed")}</dd></div>
+    <div class="kv"><dt>Mobility / O&M</dt><dd>${esc(getv("A11.3") || "Not assessed")}</dd></div>
+    <div class="kv"><dt>Money Management</dt><dd>${esc(getv("A13.1") || "Not assessed")}</dd></div>
+  </div>
+
+  <div class="card" style="border-color:#c99a1a; background:#fffdf5;">
+    <h2 style="color:#8a6500;">Suggested IEP Goals</h2>
+    <p class="muted small">These goals are generated based on the assessment data.</p>
+    ${goals.map(g => `
+      <div class="iep-card">
+        <h4>Domain: ${esc(g.domain)}</h4>
+        <p><strong>Annual Goal:</strong> ${esc(g.goal)}</p>
+        <div class="obj"><strong>Short-Term Objectives:</strong><ul>${g.objectives.map(o => `<li>${esc(o)}</li>`).join("")}</ul></div>
+      </div>
+    `).join("")}
+  </div>
+
+  <div class="actions noprint">
+    <button class="btn primary" data-act="submit">Send to Admin</button>
+    <button class="btn" data-act="print">Print / Save as PDF</button>
+  </div>`;
+}
+
+/* Events */
+document.addEventListener("click", (e) => {
+  const chip = e.target.closest("button[data-f]");
+  if(chip && chip.dataset.q){ e.preventDefault(); handleAnswerChip(chip); return; }
+
+  const el = e.target.closest("[data-act]");
+  if(!el) return;
+  const act = el.dataset.act;
+
+  if(act === "go"){ state.ui.stage = el.dataset.to; save(); render(true); return; }
+  if(act === "toggle-info"){ state.ui.showInfo[el.dataset.id] = !state.ui.showInfo[el.dataset.id]; save(); render(); return; }
+  if(act === "consent"){ state.consent[el.dataset.k] = !state.consent[el.dataset.k]; save(); render(); return; }
+  if(act === "section"){ state.ui.section = el.dataset.id; save(); render(true); return; }
+  if(act === "tier"){ state.ui["openTier"+el.dataset.n] = !state.ui["openTier"+el.dataset.n]; save(); render(); return; }
+  if(act === "resp"){ state.ui.respondent = el.dataset.id; state.ui.section = "A1"; save(); render(true); return; }
+  
+  if(act === "nextsec" || act === "prevsec"){
+    const isT = state.ui.respondent === "teacher";
+    const activeSecs = SECS.filter(s => {
+      if(s.teacherOnly && !isT) return false;
+      if(s.condition && !s.condition()) return false;
+      return true;
+    });
+    const i = activeSecs.findIndex(s => s.id === state.ui.section);
+    const n = act === "nextsec" ? i + 1 : i - 1;
+    if(n >= activeSecs.length) state.ui.stage = "review";
+    else if(n < 0) state.ui.stage = "welcome";
+    else state.ui.section = activeSecs[n].id;
+    save(); render(true); return;
+  }
+
+  if(act === "submit"){
+    logEvent("snapshot", { val: JSON.stringify({ answers: state.answers, goals: generateIEPGoals(), childCode: state.childCode })});
+    flush(true);
+    alert("IEP Profile sent to the admin dashboard!");
+    return;
+  }
+  if(act === "print"){ window.print(); return; }
+});
+
+function handleAnswerChip(el){
+  const qid = el.dataset.q;
+  const resp = state.ui.respondent || "caregiver";
+  if(!state.answers[resp]) state.answers[resp] = {};
+  const store = state.answers[resp];
+  const a = store[qid] || (store[qid] = { v:null });
+  const f = el.dataset.f;
+
+  if(f === "set"){ a.v = (a.v === el.dataset.val) ? null : el.dataset.val; a.dk = false; a.na = false; }
+  else if(f === "multi"){
+    if(!Array.isArray(a.v)) a.v = [];
+    const i = a.v.indexOf(el.dataset.opt);
+    if(i >= 0) a.v.splice(i,1); else a.v.push(el.dataset.opt);
+    a.dk = false; a.na = false;
+  }
+  else if(f === "dk"){ a.dk = !a.dk; if(a.dk){ a.na = false; a.v = null; } }
+  else if(f === "na"){ a.na = !a.na; if(a.na){ a.dk = false; a.v = null; } }
+  
+  logEvent("answer", { qid, val: {v: a.v, dk: a.dk, na: a.na}, respondent: resp });
+  save(); render();
+}
+
+load();
+render(true);
+</script>
+</body>
+</html>
